@@ -15,7 +15,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* Layout: Aksongur Ev Paneli ve The Moon Tekne Paneli ile aynı dil; iki büyük kart yan yana, telefonda alt alta */
+/* Layout: Aksongur Ev Paneli ve The Moon Tekne Paneli ile aynı dil.
+   Telefon: üstte özet şeridi, kartlarda küçük simge + başlık tek satır, iki kartın durumu ilk ekranda.
+   Tablet dikey: kartlar ekran yüksekliğine yayılır, büyük simge ve büyük butonlar.
+   Tablet yatay: yatay başlık, kaydırmasız. */
 :root{
   --bg:#0f1430; --panel:#181f45; --panel-2:#20295a; --line:#2c3670;
   --fg:#eef0ff; --muted:#8c94c9; --accent:#4a63ff; --warm:#ffbf5e;
@@ -28,92 +31,177 @@
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:radial-gradient(1200px 700px at 50% 20%,#1a2256 0%,var(--bg) 60%) fixed,var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.5;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(14px + env(safe-area-inset-top,0px)) calc(28px + env(safe-area-inset-bottom,0px));min-height:100%}
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(12px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px));min-height:100%;overflow-x:hidden}
+body.has-toast{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.wrap{max-width:1100px;margin:0 auto;display:grid;gap:14px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px 14px}
-h1{font-family:var(--f-display);font-size:20px;font-weight:700;margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:1100px;margin:0 auto;display:grid;gap:10px}
+
+/* Başlık + özet şeridi */
+header{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px 14px}
+h1{font-family:var(--f-display);font-size:20px;font-weight:700;margin:0;line-height:1.3}
+.ttl{display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap;min-width:0}
 .sub{color:var(--muted);font-size:12px}
-.sub b{font-family:var(--f-mono);font-weight:500;color:var(--fg)}
+.sub .tag{display:none}
 .demo{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,191,94,.12);color:var(--warm);white-space:nowrap}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
-.icon{display:flex;justify-content:center;padding:6px 0 0}
-.icon svg{width:190px;max-width:100%;height:auto}
-.name{font-family:var(--f-display);font-size:22px;font-weight:700;text-align:center;margin:0;line-height:1.2}
+.strip{order:3;flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:3px 10px;border-radius:999px;background:var(--panel-2);border:1px solid transparent;white-space:nowrap}
+.chip b{font-family:var(--f-mono);font-weight:500}
+.chip.lit b{color:var(--warm)}
+.chip.warn{color:var(--danger);background:rgba(255,107,129,.12);border-color:rgba(255,107,129,.4)}
+.wi{width:13px;height:13px;flex:none;vertical-align:-2px}
+
+/* Kartlar */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px 14px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.open{display:flex;align-items:center;gap:12px;min-height:60px;padding:4px 8px 4px 4px;color:inherit;text-decoration:none;border-radius:14px;transition:background .2s}
+.open:hover{background:var(--panel-2)}
+.open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.icon{display:flex;justify-content:center;flex:none}
+.icon svg{width:66px;height:auto;display:block;transition:transform .2s}
+.open:hover .icon svg{transform:translateY(-2px)}
+.name{font-family:var(--f-display);font-size:19px;font-weight:700;margin:0;line-height:1.2;min-width:0}
 .name small{display:block;font-family:var(--f-body);font-size:12px;font-weight:500;color:var(--muted);margin-top:2px}
-.status{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:0}
-.status div{min-width:0;background:var(--panel-2);border-radius:12px;padding:8px 10px}
+.go{margin-left:auto;flex:none;font-size:12px;font-weight:600;color:var(--accent);padding:4px 10px;border-radius:999px;background:rgba(74,99,255,.14);white-space:nowrap}
+.go .gl{display:none}
+.card.boat .go{color:var(--cool);background:rgba(79,195,255,.12)}
+.win{transition:fill .3s}
+
+.meta{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 2px -2px}
+.meta .last{color:var(--warm);font-weight:600}
+.status{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin:0}
+.status div{min-width:0;background:var(--panel-2);border-radius:12px;padding:6px 10px}
+.status div.warn{box-shadow:inset 0 0 0 1px rgba(255,107,129,.5)}
 .status dt{font-family:var(--f-display);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
-.status dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+.status dd{margin:0;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.35;transition:opacity .3s}
+.status dd small{font-size:12px;font-weight:500;color:var(--muted);margin-left:6px}
 .status dd.ok{color:var(--ok)}
-.lights h3{font-family:var(--f-display);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.status dd.bad,.status dd.warn{color:var(--danger)}
+.status dd .wi{width:14px;height:14px;margin-right:4px}
+.card.stale .status div:not(.link) dd{opacity:.45}
+
+/* Işık butonları: yalnızca açık ışıklar */
+.lights h3{font-family:var(--f-display);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;display:flex;align-items:center;gap:8px}
 .count{background:var(--warm);color:#2a1a05;border-radius:999px;font-size:11px;padding:1px 8px;letter-spacing:0;font-family:var(--f-mono)}
 .count.zero{background:var(--panel-2);color:var(--muted)}
 .btns{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
-.lbtn{display:grid;justify-items:start;gap:5px;padding:9px 10px;border-radius:11px;text-align:left;min-width:0;
-  background:#ffbf5e;border:1px solid #ffd38a;color:#2a1a05;box-shadow:0 0 18px -4px #ffbf5e;transition:transform .15s,opacity .25s}
-.lbtn span{font-size:12.5px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
-.lbtn small{font-size:10.5px;color:#5a3a0c;font-family:var(--f-mono)}
-.lbtn svg{color:#5a3a0c}
+.lbtn{display:flex;align-items:center;gap:8px;min-height:48px;padding:7px 10px;border-radius:11px;text-align:left;min-width:0;
+  background:#ffbf5e;border:1px solid #ffd38a;color:#2a1a05;box-shadow:0 0 18px -4px #ffbf5e;transition:transform .15s,opacity .25s,box-shadow .2s}
+.lbtn > svg,.lbtn .spin{flex:none;color:#5a3a0c}
+.lbtn .bt{display:grid;min-width:0}
+.lbtn .bt span{font-size:12.5px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
+.lbtn .bt small{font-size:10.5px;color:#5a3a0c;font-family:var(--f-mono)}
 .lbtn:active{transform:scale(.97)}
 .lbtn.off{opacity:0;transform:scale(.85)}
+.lbtn.busy{opacity:.6;box-shadow:none;cursor:progress}
+.lbtn.busy .bt small{font-family:var(--f-body);font-weight:600}
+.lbtn.err{border:2px solid var(--danger);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--danger)}
+.lbtn.err .bt small{font-family:var(--f-body);font-weight:700;color:#2a1a05;display:flex;align-items:center;gap:4px}
+.lbtn.err .bt small .wi{color:#b3122f}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 .empty{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px;grid-column:1/-1;padding:4px 2px}
 .empty::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ok)}
+
 footer{display:flex;justify-content:center}
-.reset{padding:8px 14px;border-radius:10px;background:var(--panel-2);color:var(--muted);font-size:12px;font-weight:600}
+.reset{min-height:44px;padding:0 16px;border-radius:10px;background:var(--panel-2);color:var(--muted);font-size:12px;font-weight:600}
 .reset:hover{color:var(--fg)}
-.open{display:grid;gap:8px;justify-items:center;color:inherit;text-decoration:none;border-radius:14px;padding:4px 0 6px;transition:background .2s}
-.open:hover{background:var(--panel-2)}
-.open:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.open:hover .icon svg{transform:translateY(-2px)}
-.icon svg{transition:transform .2s}
-.go{font-size:12px;font-weight:600;color:var(--accent);padding:4px 10px;border-radius:999px;background:rgba(74,99,255,.14)}
-.card.boat .go{color:var(--cool);background:rgba(79,195,255,.12)}
-.win{transition:fill .3s}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Geri al bildirimi */
+.toast{position:fixed;z-index:10;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  max-width:480px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:6px 6px 6px 16px;box-shadow:0 12px 32px -10px #000;
+  opacity:0;transform:translateY(12px);visibility:hidden;transition:opacity .2s,transform .2s,visibility 0s linear .2s}
+.toast.show{opacity:1;transform:none;visibility:visible;transition:opacity .2s,transform .2s}
+.toast span{font-weight:500;min-width:0}
+.toast button{flex:none;min-height:44px;min-width:44px;padding:0 16px;border-radius:10px;background:rgba(74,99,255,.22);color:var(--fg);font-weight:600}
+.toast button[hidden]{display:none}
+
+@media (min-width:600px){ .sub .tag{display:inline} }
+
+/* Tablet ve üstü: uzaktan okunur değerler */
+@media (min-width:700px){
+  header{padding:10px 16px}
+  .strip{order:2;flex:1 1 auto;flex-basis:auto;justify-content:flex-end}
+  .demo{order:3}
+  .card{padding:16px 18px 18px;gap:12px}
+  .icon svg{width:118px}
+  .name{font-size:22px}
+  .go .gl{display:inline}.go .gs{display:none}
+  .status dt{font-size:12px}
+  .status dd{font-size:22px;line-height:1.3}
+  .status dd small{display:block;margin:0;font-size:13px}
+  .status dd .wi{width:18px;height:18px;vertical-align:-1px}
+  .status div{padding:8px 12px}
+  .lbtn{min-height:56px;padding:9px 12px}
+  .lbtn .bt span{font-size:14px}
+  .lbtn .bt small{font-size:11.5px}
+  .meta{font-size:12.5px}
+}
+/* Tablet dikey: kartları ekran yüksekliğine yay */
+@media (min-width:700px) and (min-height:900px) and (orientation:portrait){
+  body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+  .wrap{flex:1;width:100%;grid-template-rows:auto 1fr auto;gap:16px}
+  .grid{gap:16px}
+  .card{padding:20px;gap:16px}
+  .open{flex:1;flex-direction:column;justify-content:center;gap:10px;padding:12px}
+  .icon svg{width:230px}
+  .name{font-size:28px;text-align:center}
+  .name small{font-size:14px}
+  .go{margin-left:0;font-size:14px;padding:6px 14px}
+  .status div{padding:10px 14px}
+  .btns{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+  .lbtn{min-height:76px;padding:12px 14px;gap:10px}
+  .lbtn > svg{width:22px;height:22px}
+  .lbtn .bt span{font-size:16px}
+  .lbtn .bt small{font-size:12px}
+  .lights h3{font-size:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
 </style>
 </head>
 <body>
 
 <div class="wrap">
   <header>
-    <div>
+    <div class="ttl">
       <h1>Aksi</h1>
       <div class="sub" id="clock">Ev ve tekne tek ekranda</div>
     </div>
+    <ul class="strip" id="strip" aria-label="Özet"></ul>
     <span class="demo">● Örnek veri</span>
   </header>
 
   <main class="grid">
     <!-- EV -->
-    <section class="card home" aria-labelledby="h-home">
-      <a class="open" href="https://taylanaksongur.github.io/akilli-ev/" aria-label="Ev panelini aç"><div class="icon">
-        <svg viewBox="0 0 200 170" role="img" aria-label="Üç katlı ev">
-          <path d="M20 70 L100 12 L180 70" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
-          <rect x="38" y="62" width="124" height="100" rx="6" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="6"/>
-          <line x1="38" y1="95" x2="162" y2="95" stroke="var(--line)" stroke-width="3"/>
-          <line x1="38" y1="128" x2="162" y2="128" stroke="var(--line)" stroke-width="3"/>
-          <!-- 2. kat -->
-          <rect class="win" data-win="h-cocuk" x="56" y="71" width="26" height="17" rx="2" fill="var(--off)"/>
-          <rect class="win" data-win="h-yatak" x="118" y="71" width="26" height="17" rx="2" fill="var(--off)"/>
-          <!-- 1. kat -->
-          <rect class="win" data-win="h-calisma" x="56" y="104" width="26" height="17" rx="2" fill="var(--off)"/>
-          <rect class="win" data-win="h-banyo" x="118" y="104" width="26" height="17" rx="2" fill="var(--off)"/>
-          <!-- zemin -->
-          <rect class="win" data-win="h-salon" x="52" y="137" width="34" height="17" rx="2" fill="var(--off)"/>
-          <rect x="91" y="134" width="18" height="28" rx="2" fill="var(--accent)"/>
-          <rect class="win" data-win="h-mutfak" x="116" y="137" width="30" height="17" rx="2" fill="var(--off)"/>
-        </svg>
-      </div>
-      <h2 class="name" id="h-home">Ev<small>Aksongur Ev Paneli</small></h2><span class="go">Ev panelini aç →</span></a>
-      <dl class="status">
-        <div><dt>Termostat</dt><dd>21,5 °C · ısıtma</dd></div>
-        <div><dt>Hedef</dt><dd>22 °C</dd></div>
-        <div><dt>iHost</dt><dd class="ok">Bağlı</dd></div>
-        <div><dt>Prizler</dt><dd>2 açık</dd></div>
-      </dl>
+    <section class="card home" id="card-home" aria-labelledby="h-home">
+      <a class="open" href="https://taylanaksongur.github.io/akilli-ev/" aria-label="Ev panelini aç">
+        <div class="icon">
+          <svg viewBox="0 0 200 170" role="img" aria-label="Üç katlı ev">
+            <path d="M20 70 L100 12 L180 70" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+            <rect x="38" y="62" width="124" height="100" rx="6" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="6"/>
+            <line x1="38" y1="95" x2="162" y2="95" stroke="var(--line)" stroke-width="3"/>
+            <line x1="38" y1="128" x2="162" y2="128" stroke="var(--line)" stroke-width="3"/>
+            <!-- 2. kat -->
+            <rect class="win" data-win="h-cocuk" x="56" y="71" width="26" height="17" rx="2" fill="var(--off)"/>
+            <rect class="win" data-win="h-yatak" x="118" y="71" width="26" height="17" rx="2" fill="var(--off)"/>
+            <!-- 1. kat -->
+            <rect class="win" data-win="h-calisma" x="56" y="104" width="26" height="17" rx="2" fill="var(--off)"/>
+            <rect class="win" data-win="h-banyo" x="118" y="104" width="26" height="17" rx="2" fill="var(--off)"/>
+            <!-- zemin -->
+            <rect class="win" data-win="h-salon" x="52" y="137" width="34" height="17" rx="2" fill="var(--off)"/>
+            <rect x="91" y="134" width="18" height="28" rx="2" fill="var(--accent)"/>
+            <rect class="win" data-win="h-mutfak" x="116" y="137" width="30" height="17" rx="2" fill="var(--off)"/>
+          </svg>
+        </div>
+        <h2 class="name" id="h-home">Ev<small>Aksongur Ev Paneli</small></h2>
+        <span class="go"><span class="gl">Ev panelini aç</span><span class="gs">Aç</span> →</span>
+      </a>
+      <p class="meta" id="m-home"></p>
+      <dl class="status" id="s-home"></dl>
       <div class="lights">
         <h3>Açık ışıklar <span class="count" id="c-home">0</span></h3>
         <div class="btns" id="b-home"></div>
@@ -121,27 +209,26 @@ footer{display:flex;justify-content:center}
     </section>
 
     <!-- TEKNE -->
-    <section class="card boat" aria-labelledby="h-boat">
-      <a class="open" href="https://taylanaksongur.github.io/Tekne-panel/" aria-label="Tekne panelini aç"><div class="icon">
-        <svg viewBox="0 0 200 170" role="img" aria-label="Tekne">
-          <line x1="96" y1="18" x2="96" y2="92" stroke="var(--cool)" stroke-width="5" stroke-linecap="round"/>
-          <circle class="win" data-win="b-demir" cx="96" cy="14" r="6" fill="var(--off)"/>
-          <path d="M70 92 L76 64 L136 64 L144 92 Z" fill="var(--panel-2)" stroke="var(--cool)" stroke-width="5" stroke-linejoin="round"/>
-          <rect class="win" data-win="b-kabin" x="86" y="71" width="16" height="12" rx="2" fill="var(--off)"/>
-          <rect class="win" data-win="b-salon" x="110" y="71" width="16" height="12" rx="2" fill="var(--off)"/>
-          <path d="M18 92 H182 L162 128 H42 Z" fill="var(--cool)" stroke="var(--cool)" stroke-width="5" stroke-linejoin="round"/>
-          <circle class="win" data-win="b-seyir" cx="166" cy="100" r="5" fill="var(--off)"/>
-          <circle class="win" data-win="b-guverte" cx="34" cy="100" r="5" fill="var(--off)"/>
-          <path d="M10 146 q15 -10 30 0 t30 0 t30 0 t30 0 t30 0 t30 0" fill="none" stroke="var(--cool)" stroke-width="3" opacity=".5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h2 class="name" id="h-boat">Tekne<small>The Moon</small></h2><span class="go">Tekne panelini aç →</span></a>
-      <dl class="status">
-        <div><dt>Akü</dt><dd>%86 · 12,8 V</dd></div>
-        <div><dt>Akım</dt><dd>3,4 A</dd></div>
-        <div><dt>Temiz su</dt><dd>%64</dd></div>
-        <div><dt>Kabin</dt><dd>19,4 °C · %58 nem</dd></div>
-      </dl>
+    <section class="card boat" id="card-boat" aria-labelledby="h-boat">
+      <a class="open" href="https://taylanaksongur.github.io/Tekne-panel/" aria-label="Tekne panelini aç">
+        <div class="icon">
+          <svg viewBox="0 0 200 170" role="img" aria-label="Tekne">
+            <line x1="96" y1="18" x2="96" y2="92" stroke="var(--cool)" stroke-width="5" stroke-linecap="round"/>
+            <circle class="win" data-win="b-demir" cx="96" cy="14" r="6" fill="var(--off)"/>
+            <path d="M70 92 L76 64 L136 64 L144 92 Z" fill="var(--panel-2)" stroke="var(--cool)" stroke-width="5" stroke-linejoin="round"/>
+            <rect class="win" data-win="b-kabin" x="86" y="71" width="16" height="12" rx="2" fill="var(--off)"/>
+            <rect class="win" data-win="b-salon" x="110" y="71" width="16" height="12" rx="2" fill="var(--off)"/>
+            <path d="M18 92 H182 L162 128 H42 Z" fill="var(--cool)" stroke="var(--cool)" stroke-width="5" stroke-linejoin="round"/>
+            <circle class="win" data-win="b-seyir" cx="166" cy="100" r="5" fill="var(--off)"/>
+            <circle class="win" data-win="b-guverte" cx="34" cy="100" r="5" fill="var(--off)"/>
+            <path d="M10 146 q15 -10 30 0 t30 0 t30 0 t30 0 t30 0 t30 0" fill="none" stroke="var(--cool)" stroke-width="3" opacity=".5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2 class="name" id="h-boat">Tekne<small>The Moon</small></h2>
+        <span class="go"><span class="gl">Tekne panelini aç</span><span class="gs">Aç</span> →</span>
+      </a>
+      <p class="meta" id="m-boat"></p>
+      <dl class="status" id="s-boat"></dl>
       <div class="lights">
         <h3>Açık ışıklar <span class="count" id="c-boat">0</span></h3>
         <div class="btns" id="b-boat"></div>
@@ -152,9 +239,19 @@ footer{display:flex;justify-content:center}
   <footer><button class="reset" id="reset" type="button">Örnek durumu geri yükle</button></footer>
 </div>
 
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span id="t-msg"></span>
+  <button type="button" id="t-undo">Geri al</button>
+</div>
+
 <script>
 /* Veri katmanı: ileride iHost (ev) ve xRoute BLE (tekne) bağlantıları bu fonksiyonların yerine geçecek.
-   Tekne için kapatma komutu: "swN\n" (FFE0/FFE1), ev için iHost API'si. */
+   Tekne için kapatma komutu: "swN\n" (FFE0/FFE1), ev için iHost API'si.
+   Test için adres parametreleri: ?hata=1 (turnOff hep reddeder), ?durum=uyari (düşük akü/su), ?durum=kopuk (bağlantı yok). */
+const LOW = { bat: 30, water: 20 };          // uyarı eşikleri (%): akü < 30, temiz su < 20
+const DEMO_DELAY = 400;                       // demo: ara durum görünsün
+const UNDO_MS = 5000;
+
 const SAMPLE = {
   home: [
     {id:"h-salon",   name:"Salon",         where:"Zemin", on:true},
@@ -170,14 +267,98 @@ const SAMPLE = {
     {id:"b-guverte", name:"Güverte",       where:"sw3", on:true},
     {id:"b-seyir",   name:"Seyir fenerleri", where:"sw4", on:false},
     {id:"b-demir",   name:"Demir feneri",  where:"sw5", on:true}
-  ]
+  ],
+  homeStatus: {temp:21.5, mode:"ısıtma", target:22, hub:true, plugs:2},
+  boatStatus: {bat:86, volt:12.8, amp:3.4, water:64, temp:19.4, hum:58, link:true}
 };
-let state = JSON.parse(JSON.stringify(SAMPLE));
+const PLACE = {home:"Ev", boat:"Tekne"};
+const params = new URLSearchParams(location.search);
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+function freshState(){
+  const s = JSON.parse(JSON.stringify(SAMPLE));
+  const mode = params.get("durum");
+  if (mode === "uyari") Object.assign(s.boatStatus, {bat:24, volt:11.9, water:12});
+  if (mode === "kopuk") { s.boatStatus.link = false; s.homeStatus.hub = false; }
+  const now = Date.now();
+  s.updated = {home:now, boat:now};
+  return s;
+}
+let state = freshState();
+let ui = {pending:{}};   // ışık id → "busy" | "err"
+let epoch = 0;           // sıfırlamada artar; eski istek sonuçları yok sayılır
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function turnOff(place, light){
   // TODO: gerçek cihaza komut gönder (iHost / BLE "swN")
+  await sleep(DEMO_DELAY);
+  if (params.get("hata") === "1") throw new Error("Cihaz yanıt vermedi (demo)");
   light.on = false;
+}
+async function turnOn(place, light){
+  // TODO: gerçek cihaza komut gönder
+  await sleep(300);
+  light.on = true;
+}
+
+const fmt = (n, d=0) => n.toLocaleString("tr-TR", {minimumFractionDigits:d, maximumFractionDigits:d});
+const WARN = '<svg class="wi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4.5M12 17.5h.01"/></svg>';
+const BULB = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg>';
+
+function stat(label, value, sub, o={}){
+  const cls = [o.warn ? "warn" : "", o.link ? "link" : ""].join(" ").trim();
+  const ddc = o.warn ? "warn" : (o.cls || "");
+  return `<div class="${cls}"><dt>${label}</dt><dd class="${ddc}">${o.warn ? WARN + '<span class="sr">Uyarı, düşük: </span>' : ""}${value}${sub ? `<small>${sub}</small>` : ""}</dd></div>`;
+}
+const batLow = s => s.bat < LOW.bat;
+const waterLow = s => s.water < LOW.water;
+
+function renderStatus(){
+  const h = state.homeStatus, b = state.boatStatus;
+  document.getElementById("s-home").innerHTML =
+    stat("Termostat", fmt(h.temp,1)+" °C", h.mode) +
+    stat("Hedef", fmt(h.target)+" °C") +
+    stat("iHost", h.hub ? "Bağlı" : "Koptu", "", {cls: h.hub ? "ok" : "bad", link:true}) +
+    stat("Prizler", h.plugs+" açık");
+  document.getElementById("s-boat").innerHTML =
+    stat("Akü", "%"+fmt(b.bat), fmt(b.volt,1)+" V", {warn: batLow(b)}) +
+    stat("Akım", fmt(b.amp,1)+" A") +
+    stat("Temiz su", "%"+fmt(b.water), "", {warn: waterLow(b)}) +
+    stat("Kabin", fmt(b.temp,1)+" °C", "%"+fmt(b.hum)+" nem") +
+    stat("Bağlantı", b.link ? "Bağlı" : "Koptu", "Bluetooth", {cls: b.link ? "ok" : "bad", link:true});
+  document.getElementById("card-home").classList.toggle("stale", !h.hub);
+  document.getElementById("card-boat").classList.toggle("stale", !b.link);
+  renderMeta();
+}
+
+function ago(ms){
+  const m = Math.floor(ms / 60000);
+  if (m < 1) return "az önce";
+  if (m < 60) return m + " dk önce";
+  return Math.floor(m / 60) + " sa önce";
+}
+function renderMeta(){
+  const now = Date.now();
+  const stale = {home: !state.homeStatus.hub, boat: !state.boatStatus.link};
+  for (const p of ["home","boat"]){
+    document.getElementById("m-"+p).innerHTML =
+      (stale[p] ? '<span class="last">Son bilinen değerler</span>' : "<span>Durum</span>") +
+      `<span>Güncelleme: ${ago(now - state.updated[p])}</span>`;
+  }
+}
+
+function renderStrip(){
+  const b = state.boatStatus, h = state.homeStatus;
+  const n = p => state[p].filter(l => l.on).length;
+  const lit = p => { const k = n(p); return `<li class="chip${k ? " lit" : ""}">${PLACE[p]} · ${k ? `<b>${k}</b> ışık açık` : "ışıklar kapalı"}</li>`; };
+  let html = lit("home") + lit("boat");
+  html += batLow(b)
+    ? `<li class="chip warn">${WARN}Akü <b>%${fmt(b.bat)}</b></li>`
+    : `<li class="chip">Akü <b>%${fmt(b.bat)}</b></li>`;
+  if (waterLow(b)) html += `<li class="chip warn">${WARN}Temiz su <b>%${fmt(b.water)}</b></li>`;
+  if (!b.link) html += `<li class="chip warn">${WARN}Tekne bağlantısı koptu</li>`;
+  if (!h.hub) html += `<li class="chip warn">${WARN}iHost koptu</li>`;
+  document.getElementById("strip").innerHTML = html;
 }
 
 function paintWindows(){
@@ -193,32 +374,93 @@ function render(place){
   const c = document.getElementById("c-"+place);
   c.textContent = on.length; c.classList.toggle("zero", on.length === 0);
   box.innerHTML = "";
-  if (!on.length){
-    box.innerHTML = '<span class="empty">Tüm ışıklar kapalı</span>';
-  }
+  if (!on.length) box.innerHTML = '<span class="empty">Tüm ışıklar kapalı</span>';
   for (const l of on){
+    const st = ui.pending[l.id];
     const b = document.createElement("button");
-    b.type = "button"; b.className = "lbtn"; b.id = "btn-"+l.id;
-    b.setAttribute("aria-label", l.name+" ışığını kapat");
-    b.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg><span>${l.name}</span><small>${l.where} · kapat</small>`;
-    b.addEventListener("click", async () => {
-      b.disabled = true;
-      await turnOff(place, l);
-      paintWindows();
-      if (reduce) render(place);
-      else { b.classList.add("off"); setTimeout(() => render(place), 250); }
-    });
+    b.type = "button"; b.className = "lbtn" + (st ? " "+st : ""); b.id = "btn-"+l.id;
+    if (st === "busy"){
+      b.disabled = true; b.setAttribute("aria-busy","true");
+      b.setAttribute("aria-label", l.name+" ışığı kapatılıyor");
+      b.innerHTML = `<span class="spin" aria-hidden="true"></span><span class="bt"><span>${l.name}</span><small>Kapatılıyor…</small></span>`;
+    } else if (st === "err"){
+      b.setAttribute("aria-label", l.name+" ışığı kapatılamadı, tekrar dene");
+      b.innerHTML = `${BULB}<span class="bt"><span>${l.name}</span><small>${WARN}Tekrar dene</small></span>`;
+    } else {
+      b.setAttribute("aria-label", l.name+" ışığını kapat");
+      b.innerHTML = `${BULB}<span class="bt"><span>${l.name}</span><small>${l.where} · kapat</small></span>`;
+    }
+    b.addEventListener("click", () => switchOff(place, l.id));
     box.appendChild(b);
   }
 }
 
-function renderAll(){ render("home"); render("boat"); paintWindows(); }
-document.getElementById("reset").addEventListener("click", () => { state = JSON.parse(JSON.stringify(SAMPLE)); renderAll(); });
+async function switchOff(place, id){
+  if (ui.pending[id] === "busy") return;
+  const my = epoch;
+  const light = state[place].find(l => l.id === id);
+  if (!light || !light.on) return;
+  ui.pending[id] = "busy"; render(place);
+  try {
+    await turnOff(place, light);
+  } catch (e) {
+    if (my !== epoch) return;
+    ui.pending[id] = "err"; render(place);
+    const again = document.getElementById("btn-"+id); if (again) again.focus();
+    return;
+  }
+  if (my !== epoch) return;
+  delete ui.pending[id];
+  paintWindows(); renderStrip();
+  showToast(place, light);
+  const btn = document.getElementById("btn-"+id);
+  if (reduce || !btn) render(place);
+  else { btn.classList.add("off"); setTimeout(() => render(place), 250); }
+}
+
+/* Geri al bildirimi: her zaman en son kapatılan ışığı gösterir */
+const toast = document.getElementById("toast"), tMsg = document.getElementById("t-msg"), tUndo = document.getElementById("t-undo");
+let toastRef = null, toastTimer = 0, toastHold = false;
+function armToast(){ clearTimeout(toastTimer); if (!toastHold) toastTimer = setTimeout(hideToast, UNDO_MS); }
+function showToast(place, light){
+  toastRef = {place, id: light.id, epoch};
+  tMsg.textContent = `${PLACE[place]} · ${light.name} kapatıldı`;
+  tUndo.hidden = false; tUndo.disabled = false;
+  toast.classList.add("show"); document.body.classList.add("has-toast");
+  armToast();
+}
+function showNote(text){
+  toastRef = null; tMsg.textContent = text; tUndo.hidden = true;
+  toast.classList.add("show"); document.body.classList.add("has-toast"); armToast();
+}
+function hideToast(){
+  clearTimeout(toastTimer); toastRef = null; toastHold = false;
+  toast.classList.remove("show"); document.body.classList.remove("has-toast");
+}
+toast.addEventListener("pointerenter", () => { toastHold = true; clearTimeout(toastTimer); });
+toast.addEventListener("pointerleave", () => { toastHold = false; armToast(); });
+toast.addEventListener("focusin", () => { toastHold = true; clearTimeout(toastTimer); });
+toast.addEventListener("focusout", () => { toastHold = false; armToast(); });
+tUndo.addEventListener("click", async () => {
+  const ref = toastRef; if (!ref || ref.epoch !== epoch) return hideToast();
+  tUndo.disabled = true;
+  const light = state[ref.place].find(l => l.id === ref.id);
+  try { if (light && !light.on) await turnOn(ref.place, light); }
+  catch (e) { if (ref.epoch === epoch) showNote(`${light.name} açılamadı`); return; }
+  if (ref.epoch !== epoch) return;
+  hideToast(); render(ref.place); paintWindows(); renderStrip();
+});
+
+function renderAll(){ render("home"); render("boat"); paintWindows(); renderStatus(); renderStrip(); }
+document.getElementById("reset").addEventListener("click", () => {
+  epoch++; state = freshState(); ui = {pending:{}}; hideToast(); renderAll();
+});
 
 const d = new Date();
-document.getElementById("clock").textContent =
-  d.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"}) + " · ev ve tekne tek ekranda";
+document.getElementById("clock").innerHTML =
+  d.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"}) + '<span class="tag"> · ev ve tekne tek ekranda</span>';
 renderAll();
+setInterval(renderMeta, 15000);
 </script>
 
 </body>
