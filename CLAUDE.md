@@ -16,6 +16,16 @@ Ana oturum (koordinatör) işi böler ve ilgili uzmana verir:
 - **tekne-uzmani** – Tekne-panel deposu, xRoute BLE protokolü
 - **arayuz-tasarimci** – ortak görünüm, telefon düzeni, ana ekran uygulaması (PWA)
 - **test-kontrol** – her değişikliği yayına almadan önce kontrol eder
+- **ergonomi-degerlendirici** – her güncellemeden sonra sayfayı kullanım açısından değerlendirir, öneri raporu hazırlar
+
+## Güncelleme akışı
+
+1. İlgili uzman değişikliği yapar.
+2. **test-kontrol** inceler; sorun varsa uzman düzeltir, sonra GitHub'a gönderilir.
+3. **ergonomi-degerlendirici** güncellenen sayfayı değerlendirir ve numaralı öneri raporu hazırlar.
+4. Koordinatör raporu Taylan'a sunar: her öneri numarası, önceliği ve kısa açıklamasıyla. Hiçbir öneri onaysız uygulanmaz.
+5. Taylan onayladığı numaraları söyler (ör. "1 ve 3'ü yap"). Yalnızca onaylananlar ilgili uzmana verilir; uygulandıktan sonra akış 2. adımdan devam eder.
+6. Reddedilen öneriler `degerlendirme-gecmisi.md` dosyasına not edilir ki aynı öneri tekrar sunulmasın.
 
 ## Ortak kurallar
 
