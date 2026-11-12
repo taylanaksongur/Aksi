@@ -20,6 +20,8 @@ Ana oturum (koordinatör) işi böler ve ilgili uzmana verir:
 - **yenilik-arastirmaci** – benzer ev ve tekne sistemlerini araştırır, eklenebilecek yenilikçi özellikleri raporlar
 - **altyapi-uzmani** – kullanıcı hesapları, yetkiler, ayar eşitleme ve Cloudflare Worker'lar
 
+Onaylanan işler ve kararlar `yol-haritasi.md` dosyasında.
+
 ## Güncelleme akışı
 
 1. İlgili uzman değişikliği yapar.
