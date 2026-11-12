@@ -45,7 +45,7 @@
     let zamanlayici = null;
     Storage.prototype.setItem = function (k, v) {
       ham.call(this, k, v);
-      if (this === localStorage && izli.includes(k)) {
+      if (this === localStorage && izli.includes(k) && yazabilir()) {   // aile üyesi yalnız okur; yerel değişiklik bekletilmez
         const d = durum();
         d.zaman = Object.assign({}, d.zaman, { [k]: Date.now() });
         d.bekleyen = [...new Set([...(d.bekleyen || []), k])];
