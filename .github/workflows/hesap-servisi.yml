@@ -1,0 +1,26 @@
+name: Hesap servisini Cloudflare'e yükle
+on:
+  push:
+    branches: [main]
+    paths: ['hesap-servisi/**', '.github/workflows/hesap-servisi.yml']
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Anahtar var mı
+        id: chk
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then echo "CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID tanımlı değil, yükleme atlandı."; echo "ok=0" >> $GITHUB_OUTPUT; else echo "ok=1" >> $GITHUB_OUTPUT; fi
+      - uses: actions/checkout@v4
+        if: steps.chk.outputs.ok == '1'
+      - uses: actions/setup-node@v4
+        if: steps.chk.outputs.ok == '1'
+        with: { node-version: 20 }
+      - name: Yükle
+        if: steps.chk.outputs.ok == '1'
+        working-directory: hesap-servisi
+        run: npx --yes wrangler@4 deploy

@@ -1,0 +1,16 @@
+# Aksi hesap servisi: aile kullanıcıları, yetkiler, kişisel ve ortak ayarlar.
+# Veriler tek bir SQLite tabanlı Durable Object'te ("aksi") durur; önceden kaynak oluşturmak gerekmez.
+# Workers ücretsiz planında yalnızca SQLite tabanlı Durable Object'ler kullanılabilir; bu yüzden new_sqlite_classes.
+name = "aksi-hesap"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+keep_vars = true
+
+[[durable_objects.bindings]]
+name = "HESAP"
+class_name = "HesapDeposu"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["HesapDeposu"]
