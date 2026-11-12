@@ -14,7 +14,7 @@ Taylan'ın onayladığı işler. Koordinatör buradan sırayla uzmanlara dağıt
 | Y7 | Ev enerji özeti (anlık W, günlük kWh) | ev-uzmani | Ön kontrol | Önce evde güç ölçen priz (SONOFF S31/POW vb.) var mı bakılacak. |
 | H1 | Kullanıcı hesapları ve cihazlar arası ayarlar | altyapi-uzmani | Bitti (2026-11-12) — paneller `esitle.js` ile bağlandı; şifreler eşitlenmez | Roller: yonetici / aile (ev, tekne alan seçimi). Cloudflare `aksi-hesap`. |
 | H2 | Köprüler (iHost, Imou kamera) hesap belirtecini denetlesin; aile üyesi alan izni cihaz komutlarında da geçerli olsun | altyapi-uzmani | Sırada | Şu an izin yalnız hesap servisindeki verileri koruyor. |
-| E8 | Ev panelinde oda görünümleri (odaya dokununca yakınlaşma) | ev-uzmani | Sürüyor | Taylan'ın fikri. |
+| E8 | Ev panelinde oda görünümleri (odaya dokununca yakınlaşma) | ev-uzmani | Bitti (2026-11-12) | Taylan'ın fikri. |
 
 Reddedilen: Y5 (ev + tekne ikili senaryo) → `yenilik-gecmisi.md`.
 
