@@ -400,7 +400,7 @@ body:not(.oturumsuz) .auth{display:none}
       <div class="sub" id="clock">Ev ve tekne tek ekranda</div>
     </div>
     <ul class="strip" id="strip" aria-label="Özet"></ul>
-    <span class="demo">● Örnek veri</span>
+    <span class="demo ver" title="Sürüm" style="background:transparent;border:1px solid var(--line,#2c3670);color:var(--muted,#8c94c9);font-family:'IBM Plex Mono',monospace">v1.0</span>
     <div class="hk" id="hk">
       <button type="button" class="hk-btn" id="hk-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="hk-menu">
         <span class="av" id="hk-av" aria-hidden="true"></span><span class="hk-ad" id="hk-ad"></span>
@@ -482,7 +482,7 @@ body:not(.oturumsuz) .auth{display:none}
     <p class="bos-alan" id="bos-alan" hidden>Hesabına henüz bir alan atanmadı. Ev ya da tekne panelini görmek için yöneticiden izin iste.</p>
   </main>
 
-  <footer id="alt"><button class="reset" id="reset" type="button">Örnek durumu geri yükle</button></footer>
+  <footer id="alt"></footer>
 
   <!-- KULLANICILAR (yalnız yönetici) -->
   <section class="kl" id="v-kul" hidden aria-labelledby="h-kul">
@@ -613,59 +613,72 @@ body:not(.oturumsuz) .auth{display:none}
 
 <script src="hesap.js"></script>
 <script>
-/* Veri katmanı: ileride iHost (ev) ve xRoute BLE (tekne) bağlantıları bu fonksiyonların yerine geçecek.
-   Tekne için kapatma komutu: "swN\n" (FFE0/FFE1), ev için iHost API'si.
-   Test için adres parametreleri: ?hata=1 (turnOff hep reddeder), ?durum=uyari (düşük akü/su), ?durum=kopuk (bağlantı yok). */
+/* Veri katmanı: ev ışıkları iHost köprüsünden (hesap servisi /kopru/ihost), adlar ev panelindeki aksesuarlardan.
+   Tekne: uzaktan bağlantı (ağ geçidi kartı, yol haritası Y6) gelene kadar canlı veri yok. */
 const LOW = { bat: 30, water: 20 };          // uyarı eşikleri (%): akü < 30, temiz su < 20
-const DEMO_DELAY = 400;                       // demo: ara durum görünsün
 const UNDO_MS = 5000;
-
-const SAMPLE = {
-  home: [
-    {id:"h-salon",   name:"Salon",         where:"Zemin", on:true},
-    {id:"h-mutfak",  name:"Mutfak",        where:"Zemin", on:true},
-    {id:"h-calisma", name:"Çalışma odası", where:"1. kat", on:true},
-    {id:"h-banyo",   name:"Banyo",         where:"1. kat", on:false},
-    {id:"h-cocuk",   name:"Çocuk odası",   where:"2. kat", on:true},
-    {id:"h-yatak",   name:"Yatak odası",   where:"2. kat", on:false}
-  ],
-  boat: [
-    {id:"b-kabin",   name:"Kabin",         where:"sw1", on:true},
-    {id:"b-salon",   name:"Salon",         where:"sw2", on:false},
-    {id:"b-guverte", name:"Güverte",       where:"sw3", on:true},
-    {id:"b-seyir",   name:"Seyir fenerleri", where:"sw4", on:false},
-    {id:"b-demir",   name:"Demir feneri",  where:"sw5", on:true}
-  ],
-  homeStatus: {temp:21.5, mode:"ısıtma", target:22, hub:true, plugs:2},
-  boatStatus: {bat:86, volt:12.8, amp:3.4, water:64, temp:19.4, hum:58, link:true}
-};
 const PLACE = {home:"Ev", boat:"Tekne"};
-const params = new URLSearchParams(location.search);
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function freshState(){
-  const s = JSON.parse(JSON.stringify(SAMPLE));
-  const mode = params.get("durum");
-  if (mode === "uyari") Object.assign(s.boatStatus, {bat:24, volt:11.9, water:12});
-  if (mode === "kopuk") { s.boatStatus.link = false; s.homeStatus.hub = false; }
-  const now = Date.now();
-  s.updated = {home:now, boat:now};
-  return s;
+  return { home: [], boat: [], homeStatus: {hub:false, ilk:true}, boatStatus: {link:false, uzak:false}, updated: {home:0, boat:0} };
 }
 let state = freshState();
 let ui = {pending:{}};   // ışık id → "busy" | "err"
-let epoch = 0;           // sıfırlamada artar; eski istek sonuçları yok sayılır
+let epoch = 0;
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+const belirtec = () => { try { return localStorage.getItem("aksi-oturum") || ""; } catch { return ""; } };
+async function kopru(yol, govde){
+  let r;
+  try {
+    r = await fetch(hesap.SUNUCU + "/kopru/ihost" + yol, { method: govde ? "POST" : "GET", cache: "no-store",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + belirtec() }, body: govde ? JSON.stringify(govde) : undefined });
+  } catch { throw new Error("Ev köprüsüne ulaşılamadı"); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.hata || "Ev köprüsüne ulaşılamadı");
+  return j;
+}
+/* Ev panelindeki aksesuarlar: iHost kanalı → {ad, oda} (5 dk önbellek) */
+let evAdlari = {}, evAdZamani = 0;
+async function evAdlariniAl(){
+  if (Date.now() - evAdZamani < 5 * 60e3) return;
+  try {
+    const o = await hesap.ortak.oku("ev");
+    const k = o && o.veri && o.veri.ayarlar && o.veri.ayarlar["aksongur-aksesuarlar"];
+    const acc = k ? JSON.parse(k.deger || "{}") : {};
+    evAdlari = {};
+    for (const a of Object.values(acc)) if (a && a.src === "iHost" && a.extId) evAdlari[a.extId] = {ad: a.name, oda: a.room};
+    evAdZamani = Date.now();
+  } catch {}
+}
+const odaAdi = k => k ? String(k).replace(/[-_]/g, " ").replace(/^./, c => c.toLocaleUpperCase("tr")) : "Ev";
+let evYukleniyor = false;
+async function evYenile(){
+  if (evYukleniyor || !gorunur.home || !belirtec()) return;
+  evYukleniyor = true;
+  try {
+    await evAdlariniAl();
+    const j = await kopru("/cihazlar");
+    const eski = Object.fromEntries(state.home.map(l => [l.id, l]));
+    state.home = (j.cihazlar || []).filter(c => c.acik !== null && !ui.pending[c.id]).map(c => {
+      const m = evAdlari[c.id], parca = c.ad.split(" · ");
+      return Object.assign(eski[c.id] || {}, { id: c.id, name: m ? m.ad : parca[parca.length - 1], where: m ? odaAdi(m.oda) : parca[0], on: !!c.acik });
+    }).concat(state.home.filter(l => ui.pending[l.id]));
+    state.homeStatus = {hub: true};
+  } catch {
+    state.homeStatus = {hub: false};
+  } finally { evYukleniyor = false; }
+  state.updated.home = Date.now();
+  renderAll();
+}
 async function turnOff(place, light){
-  // TODO: gerçek cihaza komut gönder (iHost / BLE "swN")
-  await sleep(DEMO_DELAY);
-  if (params.get("hata") === "1") throw new Error("Cihaz yanıt vermedi (demo)");
+  if (place !== "home") throw new Error("Tekneye uzaktan bağlantı yok");
+  await kopru("/cihaz/" + encodeURIComponent(light.id), {acik:false});
   light.on = false;
 }
 async function turnOn(place, light){
-  // TODO: gerçek cihaza komut gönder
-  await sleep(300);
+  if (place !== "home") throw new Error("Tekneye uzaktan bağlantı yok");
+  await kopru("/cihaz/" + encodeURIComponent(light.id), {acik:true});
   light.on = true;
 }
 
@@ -683,19 +696,14 @@ const waterLow = s => s.water < LOW.water;
 
 function renderStatus(){
   const h = state.homeStatus, b = state.boatStatus;
+  const acik = state.home.filter(l => l.on).length;
   document.getElementById("s-home").innerHTML =
-    stat("Termostat", fmt(h.temp,1)+" °C", h.mode) +
-    stat("Hedef", fmt(h.target)+" °C") +
-    stat("iHost", h.hub ? "Bağlı" : "Koptu", "", {cls: h.hub ? "ok" : "bad", link:true}) +
-    stat("Prizler", h.plugs+" açık");
+    stat("iHost", h.ilk ? "Bağlanıyor" : h.hub ? "Bağlı" : "Ulaşılamıyor", "", {cls: h.ilk ? "" : h.hub ? "ok" : "bad", link:true}) +
+    stat("Işıklar", h.hub ? acik + " açık" : "--", h.hub ? state.home.length + " kanal" : "");
   document.getElementById("s-boat").innerHTML =
-    stat("Akü", "%"+fmt(b.bat), fmt(b.volt,1)+" V", {warn: batLow(b)}) +
-    stat("Akım", fmt(b.amp,1)+" A") +
-    stat("Temiz su", "%"+fmt(b.water), "", {warn: waterLow(b)}) +
-    stat("Kabin", fmt(b.temp,1)+" °C", "%"+fmt(b.hum)+" nem") +
-    stat("Bağlantı", b.link ? "Bağlı" : "Koptu", "Bluetooth", {cls: b.link ? "ok" : "bad", link:true});
-  document.getElementById("card-home").classList.toggle("stale", !h.hub);
-  document.getElementById("card-boat").classList.toggle("stale", !b.link);
+    stat("Uzaktan izleme", "Yok", "Ağ geçidi kartı bekleniyor", {cls: "bad", link:true});
+  document.getElementById("card-home").classList.toggle("stale", !h.hub && !h.ilk);
+  document.getElementById("card-boat").classList.toggle("stale", false);
   renderMeta();
 }
 
@@ -713,13 +721,13 @@ const CIHAZDA = {telefon:"telefonda", tablet:"tablette"};
 
 function renderMeta(){
   const now = Date.now();
-  const stale = {home: !state.homeStatus.hub, boat: !state.boatStatus.link};
+  const stale = {home: !state.homeStatus.hub && !state.homeStatus.ilk, boat: false};
   for (const p of ["home","boat"]){
     const son = sonPanel && sonPanel.alan === ALAN[p]
       ? `<span class="son">Son açtığın<span class="sr"> panel,</span><small>· ${CIHAZDA[sonPanel.cihaz] ? CIHAZDA[sonPanel.cihaz] + ", " : ""}${ago(now - sonPanel.zaman)}</small></span>` : "";
     document.getElementById("m-"+p).innerHTML =
       (stale[p] ? '<span class="last">Son bilinen değerler</span>' + son : (son || "<span>Durum</span>")) +
-      `<span>Güncelleme: ${ago(now - state.updated[p])}</span>`;
+      (state.updated[p] ? `<span>Güncelleme: ${ago(now - state.updated[p])}</span>` : (p === "boat" ? "<span>Panelden Bluetooth ile</span>" : ""));
   }
 }
 
@@ -730,14 +738,11 @@ function renderStrip(){
   let html = "";
   if (gorunur.home) html += lit("home");
   if (gorunur.boat){
-    html += lit("boat");
-    html += batLow(b)
+    if (typeof b.bat === "number") html += batLow(b)
       ? `<li class="chip warn">${WARN}Akü <b>%${fmt(b.bat)}</b></li>`
       : `<li class="chip">Akü <b>%${fmt(b.bat)}</b></li>`;
-    if (waterLow(b)) html += `<li class="chip warn">${WARN}Temiz su <b>%${fmt(b.water)}</b></li>`;
-    if (!b.link) html += `<li class="chip warn">${WARN}Tekne bağlantısı koptu</li>`;
   }
-  if (gorunur.home && !h.hub) html += `<li class="chip warn">${WARN}iHost koptu</li>`;
+  if (gorunur.home && !h.hub && !h.ilk) html += `<li class="chip warn">${WARN}iHost'a ulaşılamıyor</li>`;
   document.getElementById("strip").innerHTML = html;
 }
 
@@ -754,7 +759,7 @@ function render(place){
   const c = document.getElementById("c-"+place);
   c.textContent = on.length; c.classList.toggle("zero", on.length === 0);
   box.innerHTML = "";
-  if (!on.length) box.innerHTML = '<span class="empty">Tüm ışıklar kapalı</span>';
+  if (!on.length) box.innerHTML = place === "boat" ? '<span class="empty">Tekne ışıkları panelden, Bluetooth ile</span>' : state.homeStatus.ilk ? '<span class="empty">Yükleniyor…</span>' : !state.homeStatus.hub ? '<span class="empty">Ev köprüsüne ulaşılamadı</span>' : '<span class="empty">Tüm ışıklar kapalı</span>';
   for (const l of on){
     const st = ui.pending[l.id];
     const b = document.createElement("button");
@@ -832,9 +837,9 @@ tUndo.addEventListener("click", async () => {
 });
 
 function renderAll(){ render("home"); render("boat"); paintWindows(); renderStatus(); renderStrip(); }
-document.getElementById("reset").addEventListener("click", () => {
-  epoch++; state = freshState(); ui = {pending:{}}; hideToast(); renderAll();
-});
+/* canlı veri: açılışta, 15 sn'de bir ve sekme öne gelince */
+setInterval(() => { if (!document.hidden) evYenile(); }, 15000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) evYenile(); });
 
 const d = new Date();
 document.getElementById("clock").innerHTML =
@@ -1014,6 +1019,7 @@ function uygulamayiAc(k, onbellekten){
   gorunur = {home: al.includes("ev"), boat: al.includes("tekne")};
   $("card-home").hidden = !gorunur.home;
   $("card-boat").hidden = !gorunur.boat;
+  evYenile();
   $("bos-alan").hidden = gorunur.home || gorunur.boat;
   $("ana").classList.toggle("tek", gorunur.home !== gorunur.boat);
   $("alt").hidden = !(gorunur.home || gorunur.boat) || !$("v-kul").hidden || !$("v-sifre").hidden;
