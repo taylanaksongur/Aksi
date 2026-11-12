@@ -960,6 +960,7 @@ $("f-giris").addEventListener("submit", async e => {
     btn.disabled = false; btn.textContent = "Giriş yap";
     formuTemizle($("f-giris"));
     cevrimdisi = false; uygulamayiAc(k); esitlemeYaz(); kisiselEsitle();
+    panelaDon();
   } catch (err){
     btn.disabled = false; btn.textContent = "Giriş yap";
     msj.textContent = hataMesaji(err);
@@ -967,6 +968,14 @@ $("f-giris").addEventListener("submit", async e => {
     if (err.durum === 401){ $("g-sifre").value = ""; $("g-sifre").setAttribute("aria-invalid","true"); $("g-sifre").focus(); }
   }
 });
+
+/* Panelden girişe yönlendirildiyse (?don=/akilli-ev/), girişten sonra o panele dön (yetki varsa) */
+function panelaDon(){
+  const d = new URLSearchParams(location.search).get("don");
+  const alan = { "/akilli-ev/": "ev", "/Tekne-panel/": "tekne" }[d];
+  if (alan && hesap.alanVar(alan)) location.replace(d);
+  else if (d) history.replaceState(null, "", location.pathname);
+}
 
 $("f-kurulum").addEventListener("submit", async e => {
   e.preventDefault();
