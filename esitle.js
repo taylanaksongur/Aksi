@@ -94,6 +94,7 @@
       if (s.cevrimdisi) return gonder();
       const sAyar = (s.veri && s.veri.ayarlar) || {};
       const d = durum(); let degisti = false;
+      if (!yazabilir() && (d.bekleyen || []).length) d.bekleyen = [];   // aile üyesinde kalmış eski bekleyenler
       for (const [k, kayit] of Object.entries(sAyar)) {
         if (!izli.includes(k) || !kayit) continue;
         const yerelZ = (d.zaman || {})[k] || 0;
