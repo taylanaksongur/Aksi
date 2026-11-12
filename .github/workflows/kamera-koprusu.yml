@@ -1,0 +1,21 @@
+name: Kamera köprüsünü Cloudflare'e yükle (akilli-ev)
+# Kamera köprüsünün kodu akilli-ev deposunda; Cloudflare anahtarları bu depoda tanımlı olduğu için yükleme buradan yapılır.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/kamera-koprusu.yml', 'kamera-koprusu.surum']
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { repository: taylanaksongur/akilli-ev, path: akilli-ev }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Yükle
+        working-directory: akilli-ev/kamera-koprusu
+        run: npx --yes wrangler@4 deploy
