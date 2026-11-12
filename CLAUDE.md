@@ -17,6 +17,7 @@ Ana oturum (koordinatör) işi böler ve ilgili uzmana verir:
 - **arayuz-tasarimci** – ortak görünüm, telefon düzeni, ana ekran uygulaması (PWA)
 - **test-kontrol** – her değişikliği yayına almadan önce kontrol eder
 - **ergonomi-degerlendirici** – her güncellemeden sonra sayfayı kullanım açısından değerlendirir, öneri raporu hazırlar
+- **yenilik-arastirmaci** – benzer ev ve tekne sistemlerini araştırır, eklenebilecek yenilikçi özellikleri raporlar
 
 ## Güncelleme akışı
 
@@ -26,6 +27,13 @@ Ana oturum (koordinatör) işi böler ve ilgili uzmana verir:
 4. Koordinatör raporu Taylan'a sunar: her öneri numarası, önceliği ve kısa açıklamasıyla. Hiçbir öneri onaysız uygulanmaz.
 5. Taylan onayladığı numaraları söyler (ör. "1 ve 3'ü yap"). Yalnızca onaylananlar ilgili uzmana verilir; uygulandıktan sonra akış 2. adımdan devam eder.
 6. Reddedilen öneriler `degerlendirme-gecmisi.md` dosyasına not edilir ki aynı öneri tekrar sunulmasın.
+
+## Yenilik akışı
+
+1. Taylan istediğinde (ya da büyük bir özellik bittiğinde) **yenilik-arastirmaci** benzer sistemleri araştırıp numaralı fikir raporu hazırlar.
+2. Koordinatör raporu Taylan'a sunar; hiçbir fikir onaysız uygulanmaz.
+3. Onaylanan fikirler ilgili uzmana verilir ve güncelleme akışı 1. adımdan işler.
+4. Reddedilen fikirler `yenilik-gecmisi.md` dosyasına not edilir.
 
 ## Ortak kurallar
 
