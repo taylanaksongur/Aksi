@@ -40,6 +40,8 @@ Onaylanan işler ve kararlar `yol-haritasi.md` dosyasında.
 
 ## Ortak kurallar
 
+- **Sistem canlıda (2026-11-12'den beri).** Ev panelindeki ışıklar iHost köprüsü üzerinden gerçek cihazları yönetir. Denemeler evdeki gerçek ışıkları açıp kapatarak yapılmaz; değişiklikler sahte iHost/hesap servisiyle yerelde test edilir, yayına küçük ve geri alınabilir adımlarla alınır.
+- iHost köprüsü: `akilli-ev/ihost-koprusu` (iHost Docker'da `arm32v7/node`, `/data` birimi). Panel köprüye hesap servisinin `/kopru/ihost` yolu üzerinden ulaşır.
 - Arayüz dili Türkçe.
 - Üç sayfa aynı görsel dili kullanır: lacivert zemin `#0f1430`, paneller `#181f45` / `#20295a`, çizgi `#2c3670`, vurgu `#4a63ff`, açık ışık `#ffbf5e`, iyi `#36d39a`, açık mavi `#4fc3ff`, tehlike `#ff6b81`. Yazı tipleri Sora (başlık), IBM Plex Sans (metin), IBM Plex Mono (sayı).
 - Sayfalar telefonda (iPhone) ve tablette, masaüstüne eklenmiş tam ekran uygulama olarak kullanılır. Tablet dikey ve yatay, evde ve teknede sabit kontrol ekranı olarak da kullanılabilir; her tasarım iki cihazda ve iki yönde denenir. Aksi'nin `manifest.webmanifest` kapsamı `/` olduğu için üç sayfa aynı pencerede açılır. Panellerdeki **‹ Aksi** düğmesi (`/Aksi/`) korunmalı; tam ekranda başka geri dönüş yolu yok.
