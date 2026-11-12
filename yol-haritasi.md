@@ -12,7 +12,10 @@ Taylan'ın onayladığı işler. Koordinatör buradan sırayla uzmanlara dağıt
 | Y4 | Akü, tank, sıcaklık geçmiş grafiği (24 saat, dokununca 7 gün) | tekne-uzmani | Sırada | Okumalar bağlıyken saklanır; Y6 gelince sunucuda tutulur. |
 | Y6 | Uzaktan izleme ve kilit ekranına bildirim | tekne-uzmani + altyapi-uzmani | Donanım bekleniyor | Aşağıdaki ağ geçidi kartı ile. |
 | Y7 | Ev enerji özeti (anlık W, günlük kWh) | ev-uzmani | Ön kontrol | Önce evde güç ölçen priz (SONOFF S31/POW vb.) var mı bakılacak. |
-| H1 | Kullanıcı hesapları ve cihazlar arası ayarlar | altyapi-uzmani | Sürüyor | Roller: yonetici / aile (ev, tekne alan seçimi). Cloudflare `aksi-hesap`. |
+| H1 | Kullanıcı hesapları ve cihazlar arası ayarlar | altyapi-uzmani | Aksi bitti; paneller bağlanacak | Roller: yonetici / aile (ev, tekne alan seçimi). Cloudflare `aksi-hesap`. |
+
+| H2 | Köprüler (iHost, Imou kamera) hesap belirtecini denetlesin; aile üyesi alan izni cihaz komutlarında da geçerli olsun | altyapi-uzmani | Sırada | Şu an izin yalnız hesap servisindeki verileri koruyor. |
+| E8 | Ev panelinde oda görünümleri (odaya dokununca yakınlaşma) | ev-uzmani | Sürüyor | Taylan'ın fikri. |
 
 Reddedilen: Y5 (ev + tekne ikili senaryo) → `yenilik-gecmisi.md`.
 

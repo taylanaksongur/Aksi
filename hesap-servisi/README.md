@@ -22,6 +22,7 @@ Tüm istekler ve yanıtlar JSON biçimindedir. Oturum gereken isteklerde `Author
 | `POST /giris` `{kullanici, sifre}` | herkes | `{token, kullanici:{id, ad, kullanici, rol, alanlar}}` |
 | `POST /cikis` | oturum | Bu oturumu kapatır |
 | `GET /ben` | oturum | `{kullanici}` |
+| `POST /sifre` `{eski, yeni}` | oturum (her rol) | Kendi şifresini değiştirir. Eski şifre girişle aynı hız sınırıyla doğrulanır, yanlışsa `403`. Yeni şifre en az 8 karakter. Başarıda bu kullanıcının diğer oturumları kapanır, mevcut oturum açık kalır |
 | `GET /ayarlar/kisisel` | oturum | `{veri, surum, guncelleme}` (hiç yazılmamışsa `veri: null, surum: 0`) |
 | `PUT /ayarlar/kisisel` `{veri, surum?}` | oturum | Kişisel ayarı yazar, en çok 64 KB, `{surum, guncelleme}` döner |
 | `GET /ayarlar/ortak/{ev\|tekne\|aksi}` | o alana erişimi olan (`aksi`: herkes) | `{veri, surum, guncelleme}` |
@@ -36,7 +37,7 @@ Tüm istekler ve yanıtlar JSON biçimindedir. Oturum gereken isteklerde `Author
 **Kurallar:**
 - Kullanıcı adı 3-32 karakter uzunluğundadır; küçük harf, rakam ve `. _ -` içerebilir. Büyük-küçük harf farkı gözetilmez.
 - Şifre en az 8 karakterdir.
-- Hatalı girişte, aynı kullanıcı ve IP için 15 dakikada 5 deneme ya da aynı IP için 15 dakikada 20 deneme aşılırsa yanıt `429` olur ve `bekle` alanı saniye cinsinden döner.
+- Hatalı giriş ve hatalı eski şifre (`/sifre`) denemeleri sayılır. 15 dakika içinde aynı kullanıcı adı ve IP için 5, aynı IP için (tüm kullanıcı adları) 20 ya da aynı kullanıcı adı için (tüm IP'ler) 20 deneme aşılırsa yanıt `429` olur ve `bekle` alanı saniye cinsinden döner. Var olmayan kullanıcı adları da aynı şekilde sayılır. Sayaç şifre denetiminden önce artırılır, böylece paralel istekler sınırı aşamaz. Başarılı girişte kullanıcı adı+IP sayacı silinir.
 
 **Güvenlik:**
 - Şifreler PBKDF2-SHA256 ile 100 000 turla özetlenir. Her şifrenin 16 baytlık rastgele bir tuzu vardır, karşılaştırma sabit zamanlıdır. 100 000, Workers'ın üst sınırıdır; tur sayısı her kullanıcı için ayrıca saklanır, böylece ileride artırılabilir.

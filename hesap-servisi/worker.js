@@ -14,6 +14,7 @@ const UZATMA_ARALIGI_MS = 86400000;        // kayan süre en çok günde bir yaz
 const DENEME_PENCERE_MS = 15 * 60000;
 const DENEME_KULLANICI = 5;                // kullanıcı+IP başına 15 dk'da hatalı deneme
 const DENEME_IP = 20;                      // IP başına 15 dk'da hatalı deneme (tüm kullanıcı adları)
+const DENEME_AD = 20;                      // kullanıcı adı başına 15 dk'da hatalı deneme (tüm IP'ler; olmayan adlar da sayılır)
 const KISISEL_SINIR = 64 * 1024;
 const ORTAK_SINIR = 512 * 1024;
 const GOVDE_SINIR = 600 * 1024;
@@ -149,6 +150,7 @@ export class HesapDeposu extends DurableObject {
       return yanit(200, { tamam: true });
     }
     if (yol === '/ben' && m === 'GET') return yanit(200, { kullanici: this.disaVer(ben) });
+    if (yol === '/sifre' && m === 'POST') return this.sifreDegistir(await this.govde(request), oturum, ip);
 
     if (yol === '/ayarlar/kisisel') {
       if (m === 'GET') return yanit(200, this.ayarOku('kisisel', 'kullanici_id', ben.id));
@@ -222,39 +224,87 @@ export class HesapDeposu extends DurableObject {
     if (typeof b.kullanici !== 'string' || typeof b.sifre !== 'string' || !b.kullanici || !b.sifre)
       throw new Hata(400, 'Kullanıcı adı ve şifre gerekli');
     const kullanici = b.kullanici.trim().toLowerCase();
-    const anahtarK = 'k:' + await sha256(kullanici + '|' + ip);
-    const anahtarI = 'i:' + await sha256(ip);
-    const simdi = Date.now();
-    this.sql.exec('DELETE FROM denemeler WHERE baslangic < ?', simdi - DENEME_PENCERE_MS);
-    for (const [a, sinir] of [[anahtarK, DENEME_KULLANICI], [anahtarI, DENEME_IP]]) {
-      const d = this.sql.exec('SELECT * FROM denemeler WHERE anahtar = ?', a).toArray()[0];
-      if (d && d.sayi >= sinir) {
-        const dk = Math.ceil((d.baslangic + DENEME_PENCERE_MS - simdi) / 60000);
-        throw new Hata(429, `Çok fazla hatalı deneme. ${dk} dk sonra tekrar dene`, { bekle: dk * 60 });
-      }
-    }
+    const anahtarlar = await this.denemeAnahtarlari(kullanici, ip);
+    // Sayaç PBKDF2'den ÖNCE artırılır: Durable Object özet beklerken başka istekleri alır,
+    // denetim ve artış aynı senkron adımda olmazsa paralel istekler sınırı aşar.
+    this.denemeAyir(anahtarlar);
 
     const k = this.kullaniciBul('kullanici', kullanici);
     let dogru = false;
     if (k) {
-      const ozet = await pbkdf2(b.sifre, unhex(k.tuz), k.tur);
-      dogru = sabitZamanliEsit(ozet, unhex(k.ozet));
+      dogru = await this.sifreDogruMu(k, b.sifre);
     } else {
       // Kullanıcı yoksa da aynı işi yap: süre farkından kullanıcı adı anlaşılmasın.
       if (!this.sahte) this.sahte = { tuz: rastgele(16), ozet: rastgele(32) };
       sabitZamanliEsit(await pbkdf2(b.sifre, this.sahte.tuz, TUR), this.sahte.ozet);
     }
 
-    if (!dogru) {
-      for (const a of [anahtarK, anahtarI]) {
-        this.sql.exec(`INSERT INTO denemeler (anahtar, sayi, baslangic) VALUES (?, 1, ?)
-                       ON CONFLICT(anahtar) DO UPDATE SET sayi = sayi + 1`, a, simdi);
-      }
-      throw new Hata(401, 'Kullanıcı adı ya da şifre hatalı');
+    if (!dogru) throw new Hata(401, 'Kullanıcı adı ya da şifre hatalı');
+    // Kullanıcı yeniden okunur: özet beklenirken silinmiş ya da şifresi değişmiş olabilir.
+    const guncel = this.kullaniciBul('id', k.id);
+    if (!guncel || guncel.ozet !== k.ozet) throw new Hata(401, 'Kullanıcı adı ya da şifre hatalı');
+    this.denemeBasarili(anahtarlar);
+    this.sql.exec('UPDATE kullanicilar SET son_giris = ? WHERE id = ?', Date.now(), k.id);
+    return yanit(200, await this.oturumAc(guncel));
+  }
+
+  // ---------- hız sınırı ----------
+  // k: kullanıcı+IP (5), i: IP (20), a: kullanıcı adı, IP'den bağımsız (20). Anahtarlar özetlenmiş saklanır.
+  async denemeAnahtarlari(kullanici, ip) {
+    return [
+      ['k:' + await sha256(kullanici + '|' + ip), DENEME_KULLANICI],
+      ['i:' + await sha256(ip), DENEME_IP],
+      ['a:' + await sha256(kullanici), DENEME_AD],
+    ];
+  }
+  // Senkron: süresi dolanları sil, sınırı denetle, hepsini artır. Arada await yok.
+  denemeAyir(anahtarlar) {
+    const simdi = Date.now();
+    this.sql.exec('DELETE FROM denemeler WHERE baslangic < ?', simdi - DENEME_PENCERE_MS);
+    let bekle = 0;
+    for (const [a, sinir] of anahtarlar) {
+      const d = this.sql.exec('SELECT * FROM denemeler WHERE anahtar = ?', a).toArray()[0];
+      if (d && d.sayi >= sinir) bekle = Math.max(bekle, d.baslangic + DENEME_PENCERE_MS - simdi);
     }
-    this.sql.exec('DELETE FROM denemeler WHERE anahtar = ?', anahtarK);
-    this.sql.exec('UPDATE kullanicilar SET son_giris = ? WHERE id = ?', simdi, k.id);
-    return yanit(200, await this.oturumAc(k));
+    if (bekle > 0) {
+      const dk = Math.max(1, Math.ceil(bekle / 60000));
+      throw new Hata(429, `Çok fazla hatalı deneme. ${dk} dk sonra tekrar dene`, { bekle: dk * 60 });
+    }
+    for (const [a] of anahtarlar)
+      this.sql.exec(`INSERT INTO denemeler (anahtar, sayi, baslangic) VALUES (?, 1, ?)
+                     ON CONFLICT(anahtar) DO UPDATE SET sayi = sayi + 1`, a, simdi);
+  }
+  // Başarılı denemede: kullanıcı+IP sayacı silinir; IP ve kullanıcı adı sayaçlarından yalnızca bu deneme geri alınır
+  // (gerçek kullanıcının girişi, başka yerden süren bir saldırının sayacını sıfırlamasın).
+  denemeBasarili(anahtarlar) {
+    const [[aK], ...digerleri] = anahtarlar;
+    this.sql.exec('DELETE FROM denemeler WHERE anahtar = ?', aK);
+    for (const [a] of digerleri)
+      this.sql.exec('UPDATE denemeler SET sayi = MAX(sayi - 1, 0) WHERE anahtar = ?', a);
+  }
+  async sifreDogruMu(k, sifre) {
+    return sabitZamanliEsit(await pbkdf2(sifre, unhex(k.tuz), k.tur), unhex(k.ozet));
+  }
+
+  // Her rol kendi şifresini değiştirir. Eski şifre girişle aynı hız sınırıyla doğrulanır.
+  // Yanlış eski şifre 403 döner (401 istemcide oturumu kapatır).
+  async sifreDegistir(b, oturum, ip) {
+    if (typeof b.eski !== 'string' || !b.eski) throw new Hata(400, 'Eski şifre gerekli');
+    const yeni = sifreDogrula(b.yeni);
+    const ben = oturum.kullanici;
+    const anahtarlar = await this.denemeAnahtarlari(ben.kullanici, ip);
+    this.denemeAyir(anahtarlar);
+    if (!(await this.sifreDogruMu(ben, b.eski))) throw new Hata(403, 'Eski şifre hatalı');
+    const s = await this.sifreOzeti(yeni);
+    // Beklemeler sırasında hesap silinmiş ya da şifre başka yerden değişmiş olabilir: yazmayla aynı adımda denetle.
+    const guncel = this.kullaniciBul('id', ben.id);
+    if (!guncel) throw new Hata(401, 'Hesap bulunamadı');
+    if (guncel.ozet !== ben.ozet) throw new Hata(409, 'Şifre bu sırada başka yerden değişti, yeniden dene');
+    this.denemeBasarili(anahtarlar);
+    this.sql.exec('UPDATE kullanicilar SET tuz = ?, ozet = ?, tur = ? WHERE id = ?', s.tuz, s.ozet, s.tur, ben.id);
+    // Bu kullanıcının diğer oturumları kapanır, bu oturum kalır.
+    this.sql.exec('DELETE FROM oturumlar WHERE kullanici_id = ? AND ozet != ?', ben.id, oturum.ozet);
+    return yanit(200, { tamam: true });
   }
 
   async oturumAc(k) {

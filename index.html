@@ -118,7 +118,138 @@ footer{display:flex;justify-content:center}
 .toast button{flex:none;min-height:44px;min-width:44px;padding:0 16px;border-radius:10px;background:rgba(74,99,255,.22);color:var(--fg);font-weight:600}
 .toast button[hidden]{display:none}
 
+/* ---------- Hesap: giriş / kurulum ---------- */
+[hidden]{display:none!important}
+body.oturumsuz .wrap{display:none}
+body:not(.oturumsuz) .auth{display:none}
+.auth{display:flex;flex-direction:column;min-height:calc(100vh - 36px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:calc(100dvh - 36px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+.auth-kart{flex:1;display:flex;flex-direction:column;gap:20px;width:100%;max-width:480px;margin:0 auto}
+.auth-marka{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding-top:12px}
+.auth-marka svg{width:150px;height:auto}
+.auth-marka h1{font-size:30px}
+.auth-marka p{margin:0;color:var(--muted)}
+.auth-govde{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 16px}
+.auth h2,.kl h2,.kl h3{font-family:var(--f-display);font-weight:700;margin:0;line-height:1.3}
+.auth h2{font-size:20px;margin-bottom:4px}
+.auth .not{margin:0 0 12px;color:var(--muted);font-size:13px}
+.auth .not b{color:var(--warm);font-weight:600}
+.a-durum{display:flex;align-items:center;gap:10px;min-height:52px;color:var(--muted)}
+.form{display:grid;gap:12px}
+.alan{display:grid;gap:4px;min-width:0}
+.alan > label,.alan > span,.secim legend{font-size:12.5px;font-weight:600;color:var(--muted)}
+.alan small{font-size:12px;color:var(--muted)}
+.girdi{width:100%;min-height:50px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--fg);font:inherit;font-size:16px}
+.girdi:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,99,255,.3)}
+.girdi:disabled{opacity:.6}
+.girdi[aria-invalid="true"]{border-color:var(--danger)}
+.sifre{position:relative;display:flex}
+.sifre .girdi{padding-right:96px}
+.sifre .ekbtn{position:absolute;top:3px;bottom:3px;right:3px;display:flex;gap:2px}
+.ekbtn button{min-width:44px;min-height:44px;padding:0 10px;border-radius:9px;color:var(--muted);font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.ekbtn button:hover,.ekbtn button[aria-pressed="true"]{color:var(--fg);background:rgba(74,99,255,.18)}
+.birincil,.ikincil,.tehlike{min-height:50px;padding:0 18px;border-radius:12px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.birincil{background:var(--accent);color:#fff}
+.ikincil{background:var(--panel-2);border:1px solid var(--line)}
+.tehlike{background:var(--danger);color:#2a0610}
+.birincil:disabled,.ikincil:disabled,.tehlike:disabled{opacity:.6;cursor:progress}
+.a-msj{margin:0;padding:10px 12px;border-radius:10px;font-size:13.5px;color:var(--danger);background:rgba(255,107,129,.12);border:1px solid rgba(255,107,129,.35)}
+.a-msj.bilgi{color:var(--cool);background:rgba(79,195,255,.1);border-color:rgba(79,195,255,.3)}
+.a-msj:empty{display:none}
+/* Aile rolünde tek kart: kutular genişliği doldurur; ışık butonları auto-fill ile sütunda kalır,
+   tek ışık açıkken bile kart boyunca uzamaz (tablette ≈170-260 px). Telefonda 130 px: iki ışık yan yana. */
+.grid.tek .status{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.grid.tek .btns{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+@media (max-width:699px){ .grid.tek .btns{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))} }
+.bos-alan{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;text-align:center;color:var(--muted)}
+
+/* ---------- Başlıktaki kullanıcı menüsü ---------- */
+.hk{position:relative;order:2;flex:none}
+.hk-btn{display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 10px 4px 4px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line)}
+.hk-btn[aria-expanded="true"]{border-color:var(--accent)}
+.av{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;background:rgba(74,99,255,.25);color:var(--fg);font-family:var(--f-display);font-weight:700;font-size:14px}
+.hk-ad{font-weight:600;max-width:9ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:699px){
+  .ttl{flex:1 1 0}
+  .hk-ad{display:none}
+  .hk-btn{padding-right:8px;gap:4px}
+}
+.hk-btn .cv{flex:none;color:var(--muted)}
+.hk-btn .nokta{width:8px;height:8px;border-radius:50%;background:var(--warm);flex:none}
+.hk-menu{position:absolute;z-index:20;right:0;top:calc(100% + 6px);width:max-content;min-width:230px;max-width:calc(100vw - 32px);background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:0 16px 40px -12px #000;display:grid;gap:2px}
+.hk-kim{display:grid;padding:8px 10px 10px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.hk-kim b{font-family:var(--f-display);font-size:15px}
+.hk-kim span{font-size:12.5px;color:var(--muted)}
+.hk-kim .esit{margin-top:4px;display:flex;align-items:center;gap:6px}
+.hk-kim .esit::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.hk-kim .esit.cd::before{background:var(--warm)}
+.hk-menu [role=menuitem]{min-height:44px;padding:0 12px;border-radius:10px;text-align:left;font-weight:600;display:flex;align-items:center;gap:10px}
+.hk-menu [role=menuitem]:hover,.hk-menu [role=menuitem]:focus-visible{background:rgba(74,99,255,.18);outline:none}
+.hk-menu .cikis{color:var(--danger)}
+.meta .son{display:inline-flex;align-items:center;gap:6px;color:var(--fg);font-weight:600}
+.meta .son small{font:inherit;font-weight:500;color:var(--muted)}
+.meta .son::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.card.boat .meta .son::before{background:var(--cool)}
+
+/* ---------- Kullanıcılar ekranı ---------- */
+.kl{display:grid;gap:10px;align-content:start}
+.kl-ust{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:6px 14px 6px 6px}
+.kl-ust h2{font-size:19px}
+.geri{min-height:44px;padding:0 14px;border-radius:12px;background:var(--panel-2);font-weight:600;white-space:nowrap}
+.kl-govde{display:grid;gap:10px}
+.kl-liste-k,.kl-form{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px;min-width:0}
+.kl-liste{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.kl-satir{width:100%;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:4px 12px;min-height:64px;padding:8px 10px;border-radius:12px;background:var(--panel-2);border:1px solid transparent;text-align:left}
+.kl-satir:hover{border-color:var(--line)}
+.kl-satir[aria-current="true"]{border-color:var(--accent)}
+.kl-satir .av{grid-row:span 2}
+.kl-satir b{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.kl-satir .alt{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;font-size:12px;color:var(--muted)}
+.rozet{display:inline-flex;align-items:center;font-size:11.5px;font-weight:600;padding:1px 8px;border-radius:999px;background:rgba(140,148,201,.16);color:var(--fg)}
+.rozet.yon{background:rgba(255,191,94,.16);color:var(--warm)}
+.rozet.ev{background:rgba(74,99,255,.2)}
+.rozet.tekne{background:rgba(79,195,255,.16);color:var(--cool)}
+.rozet.sen{background:rgba(54,211,154,.16);color:var(--ok)}
+.kl-yeni{width:100%;margin-top:10px;position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 10px 24px -10px #000}
+.kl-form h3{font-size:17px}
+.kl-form .form{margin-top:10px}
+.secim{border:0;margin:0;padding:0;display:grid;gap:6px;min-width:0}
+.secim .ops{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.secim label{position:relative;display:flex;align-items:center;gap:10px;min-height:48px;padding:0 12px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line);font-weight:600;cursor:pointer}
+.secim input{width:20px;height:20px;margin:0;accent-color:var(--accent);flex:none}
+.secim label:has(input:checked){border-color:var(--accent);background:rgba(74,99,255,.16)}
+.secim label:has(input:disabled){opacity:.6;cursor:default}
+.secim label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+.kl-eylem{display:grid;grid-template-columns:1fr 2fr;gap:8px;position:sticky;bottom:calc(8px + env(safe-area-inset-bottom,0px));background:var(--panel);padding-top:6px}
+.kl-silk{border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+.ince-tehlike{min-height:44px;padding:0 12px;border-radius:10px;color:var(--danger);font-weight:600;background:rgba(255,107,129,.08)}
+.onay{display:grid;gap:8px;padding:12px;border-radius:12px;background:rgba(255,107,129,.1);border:1px solid rgba(255,107,129,.4)}
+.onay p{margin:0;font-weight:500}
+.secim .ipucu{font-size:12px;color:var(--muted)}
+.onay div{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* Şifremi değiştir: telefonda form + altta yapışık düğmeler; tablette form ve not yan yana */
+.sd-not{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px 14px;color:var(--muted);font-size:13px}
+.sd-not h3{font-family:var(--f-display);font-size:15px;color:var(--fg);margin:0 0 6px}
+.sd-not ul{margin:0;padding-left:18px;display:grid;gap:4px}
+/* Telefon: liste ya da form, biri görünür */
+@media (max-width:759px){
+  .kl:not(.formda) .kl-form{display:none}
+  .kl.formda .kl-liste-k{display:none}
+}
+/* Tablet: liste + form yan yana */
+@media (min-width:760px){
+  .kl-govde{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:start}
+  .kl-liste-k,.kl-form{padding:16px}
+  .kl-yeni{position:static;box-shadow:none}
+  .kl-eylem{position:static}
+  .kl-form{position:sticky;top:12px}
+  .kl-ust h2{font-size:22px}
+  .sd .kl-govde{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+  .sd-not{padding:16px 18px;font-size:14px}
+}
+
 @media (min-width:600px){ .sub .tag{display:inline} }
+/* Tablet dikey genişliğinde başlık tek satıra sığsın: ek yazı ve ad gizlenir, baş harf kalır */
+@media (min-width:700px) and (max-width:1099px){ .sub .tag{display:none} .hk-ad{display:none} .hk-btn{padding-right:8px;gap:4px} }
 
 /* Tablet ve üstü: uzaktan okunur değerler */
 @media (min-width:700px){
@@ -138,6 +269,27 @@ footer{display:flex;justify-content:center}
   .lbtn .bt span{font-size:14px}
   .lbtn .bt small{font-size:11.5px}
   .meta{font-size:12.5px}
+  .hk{order:4}
+  .hk-ad{max-width:16ch}
+  .auth-govde{padding:24px}
+  .auth h2{font-size:24px}
+  .girdi{min-height:56px;font-size:17px}
+  .birincil,.ikincil,.tehlike{min-height:56px;font-size:16px}
+  .auth-marka svg{width:200px}
+  .auth-marka h1{font-size:38px}
+}
+/* Tablet yatay (ve geniş ekran): giriş ekranında marka solda, form sağda */
+@media (min-width:900px) and (orientation:landscape){
+  .auth{justify-content:center}
+  .auth-kart{flex:0 1 auto;max-width:960px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:40px}
+  .auth-marka{padding:0}
+  .auth-marka svg{width:280px}
+}
+/* Tablet dikey: form ortada, telefon gibi altta değil */
+@media (min-width:700px) and (orientation:portrait){
+  .auth{justify-content:center}
+  .auth-kart{flex:0 1 auto;max-width:560px;gap:32px}
+  .auth-marka{flex:none}
 }
 /* Tablet dikey: kartları ekran yüksekliğine yay */
 @media (min-width:700px) and (min-height:900px) and (orientation:portrait){
@@ -163,7 +315,83 @@ footer{display:flex;justify-content:center}
 }
 </style>
 </head>
-<body>
+<body class="oturumsuz">
+
+<!-- GİRİŞ / İLK KURULUM -->
+<div class="auth" id="auth">
+  <div class="auth-kart">
+    <div class="auth-marka">
+      <svg viewBox="0 0 240 130" aria-hidden="true">
+        <path d="M14 58 L62 22 L110 58" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+        <rect x="26" y="52" width="72" height="62" rx="5" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="5"/>
+        <rect x="38" y="64" width="18" height="12" rx="2" fill="var(--warm)"/>
+        <rect x="68" y="64" width="18" height="12" rx="2" fill="var(--off)"/>
+        <rect x="54" y="90" width="16" height="24" rx="2" fill="var(--accent)"/>
+        <line x1="178" y1="22" x2="178" y2="78" stroke="var(--cool)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="178" cy="18" r="5" fill="var(--warm)"/>
+        <path d="M160 78 L164 58 L206 58 L212 78 Z" fill="var(--panel-2)" stroke="var(--cool)" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M124 78 H230 L216 104 H138 Z" fill="var(--cool)" stroke="var(--cool)" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M120 118 q10 -7 20 0 t20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="var(--cool)" stroke-width="3" opacity=".5" stroke-linecap="round"/>
+      </svg>
+      <h1>Aksi</h1>
+      <p>Ev ve tekne tek ekranda</p>
+    </div>
+
+    <div class="auth-govde">
+      <div class="a-durum" id="a-yuk" role="status"><span class="spin" aria-hidden="true"></span><span id="a-yuk-m">Hesap sunucusuna bağlanılıyor…</span></div>
+
+      <div id="a-hata" hidden>
+        <h2>Sunucuya ulaşılamadı</h2>
+        <p class="not" id="a-hata-m">Hesap sunucusuna şu anda ulaşılamıyor. İnternet bağlantını kontrol edip tekrar dene.</p>
+        <div class="form"><button type="button" class="birincil" id="a-tekrar">Tekrar dene</button></div>
+      </div>
+
+      <form class="form" id="f-giris" hidden novalidate>
+        <div><h2>Giriş yap</h2><p class="not">Tek giriş ev ve tekne panellerinde de geçerli.</p></div>
+        <div class="alan">
+          <label for="g-kullanici">Kullanıcı adı</label>
+          <input class="girdi" id="g-kullanici" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="text" enterkeyhint="next" required>
+        </div>
+        <div class="alan">
+          <label for="g-sifre">Şifre</label>
+          <div class="sifre">
+            <input class="girdi" id="g-sifre" name="password" type="password" autocomplete="current-password" enterkeyhint="go" required>
+            <span class="ekbtn"><button type="button" class="goster" aria-controls="g-sifre" aria-pressed="false">Göster</button></span>
+          </div>
+        </div>
+        <p class="a-msj" id="g-msj" role="alert"></p>
+        <button type="submit" class="birincil" id="g-gonder">Giriş yap</button>
+      </form>
+
+      <form class="form" id="f-kurulum" hidden novalidate>
+        <div><h2>İlk kurulum</h2><p class="not"><b>Bu hesap yönetici olur.</b> Aile üyelerini daha sonra Kullanıcılar ekranından eklersin. Kurulum yalnızca bir kez yapılır.</p></div>
+        <div class="alan">
+          <label for="k-ad">Adın</label>
+          <input class="girdi" id="k-ad" name="name" autocomplete="name" enterkeyhint="next" maxlength="60" required>
+        </div>
+        <div class="alan">
+          <label for="k-kullanici">Kullanıcı adı</label>
+          <input class="girdi" id="k-kullanici" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" maxlength="32" required aria-describedby="k-kullanici-y">
+          <small id="k-kullanici-y">3-32 karakter; küçük harf, rakam, . _ -</small>
+        </div>
+        <div class="alan">
+          <label for="k-sifre">Şifre</label>
+          <div class="sifre">
+            <input class="girdi" id="k-sifre" name="new-password" type="password" autocomplete="new-password" enterkeyhint="next" minlength="8" required aria-describedby="k-sifre-y">
+            <span class="ekbtn"><button type="button" class="goster" aria-controls="k-sifre k-sifre2" aria-pressed="false">Göster</button></span>
+          </div>
+          <small id="k-sifre-y">En az 8 karakter</small>
+        </div>
+        <div class="alan">
+          <label for="k-sifre2">Şifre (tekrar)</label>
+          <input class="girdi" id="k-sifre2" name="new-password-2" type="password" autocomplete="new-password" enterkeyhint="go" minlength="8" required>
+        </div>
+        <p class="a-msj" id="k-msj" role="alert"></p>
+        <button type="submit" class="birincil" id="k-gonder">Kurulumu tamamla</button>
+      </form>
+    </div>
+  </div>
+</div>
 
 <div class="wrap">
   <header>
@@ -173,9 +401,25 @@ footer{display:flex;justify-content:center}
     </div>
     <ul class="strip" id="strip" aria-label="Özet"></ul>
     <span class="demo">● Örnek veri</span>
+    <div class="hk" id="hk">
+      <button type="button" class="hk-btn" id="hk-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="hk-menu">
+        <span class="av" id="hk-av" aria-hidden="true"></span><span class="hk-ad" id="hk-ad"></span>
+        <span class="nokta" id="hk-nokta" hidden title="Çevrimdışı"></span>
+        <svg class="cv" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="hk-menu" id="hk-menu" role="menu" aria-labelledby="hk-btn" hidden>
+        <div class="hk-kim"><b id="hk-tam"></b><span id="hk-rol"></span><span class="esit" id="hk-esit">Ayarlar eşitleniyor…</span></div>
+        <button type="button" role="menuitem" id="hk-kul" hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c1.8.7 3 2.4 3.5 5.2"/></svg>Kullanıcılar</button>
+        <button type="button" role="menuitem" id="hk-sifre">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2"/></svg>Şifremi değiştir</button>
+        <button type="button" role="menuitem" class="cikis" id="hk-cikis">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/></svg>Çıkış yap</button>
+      </div>
+    </div>
   </header>
 
-  <main class="grid">
+  <main class="grid" id="ana">
     <!-- EV -->
     <section class="card home" id="card-home" aria-labelledby="h-home">
       <a class="open" href="https://taylanaksongur.github.io/akilli-ev/" aria-label="Ev panelini aç">
@@ -234,9 +478,132 @@ footer{display:flex;justify-content:center}
         <div class="btns" id="b-boat"></div>
       </div>
     </section>
+
+    <p class="bos-alan" id="bos-alan" hidden>Hesabına henüz bir alan atanmadı. Ev ya da tekne panelini görmek için yöneticiden izin iste.</p>
   </main>
 
-  <footer><button class="reset" id="reset" type="button">Örnek durumu geri yükle</button></footer>
+  <footer id="alt"><button class="reset" id="reset" type="button">Örnek durumu geri yükle</button></footer>
+
+  <!-- KULLANICILAR (yalnız yönetici) -->
+  <section class="kl" id="v-kul" hidden aria-labelledby="h-kul">
+    <div class="kl-ust">
+      <button type="button" class="geri" id="kl-geri">‹ Ana ekran</button>
+      <h2 id="h-kul">Kullanıcılar</h2>
+      <span class="count" id="kl-say"></span>
+    </div>
+    <div class="kl-govde">
+      <div class="kl-liste-k">
+        <p class="a-durum" id="kl-yuk" role="status"><span class="spin" aria-hidden="true"></span>Liste yükleniyor…</p>
+        <ul class="kl-liste" id="kl-liste" aria-label="Kullanıcı listesi"></ul>
+        <p class="a-msj" id="kl-liste-msj" role="alert"></p>
+        <button type="button" class="birincil kl-yeni" id="kl-yeni">+ Yeni kullanıcı</button>
+      </div>
+
+      <form class="kl-form" id="kl-form" novalidate aria-labelledby="kl-form-bas">
+        <h3 id="kl-form-bas">Yeni kullanıcı</h3>
+        <div class="form">
+          <div class="alan">
+            <label for="u-ad">Ad</label>
+            <input class="girdi" id="u-ad" autocomplete="off" maxlength="60" required enterkeyhint="next">
+          </div>
+          <div class="alan">
+            <label for="u-kullanici">Kullanıcı adı</label>
+            <input class="girdi" id="u-kullanici" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="32" required enterkeyhint="next" aria-describedby="u-kullanici-y">
+            <small id="u-kullanici-y">3-32 karakter; küçük harf, rakam, . _ -</small>
+          </div>
+          <div class="alan">
+            <label for="u-sifre" id="u-sifre-l">Geçici şifre</label>
+            <div class="sifre">
+              <input class="girdi" id="u-sifre" type="password" autocomplete="new-password" minlength="8" enterkeyhint="done" aria-describedby="u-sifre-y">
+              <span class="ekbtn">
+                <button type="button" id="u-oner" title="Rastgele şifre öner">Öner</button>
+                <button type="button" class="goster" aria-controls="u-sifre" aria-pressed="false">Göster</button>
+              </span>
+            </div>
+            <small id="u-sifre-y">En az 8 karakter. Şifreyi kişiye kendin ilet.</small>
+          </div>
+          <fieldset class="secim">
+            <legend>Rol</legend>
+            <div class="ops">
+              <label><input type="radio" name="u-rol" value="aile" checked>Aile</label>
+              <label><input type="radio" name="u-rol" value="yonetici">Yönetici</label>
+            </div>
+          </fieldset>
+          <fieldset class="secim">
+            <legend>Görebileceği alanlar</legend>
+            <div class="ops">
+              <label><input type="checkbox" name="u-alan" value="ev" checked>Ev</label>
+              <label><input type="checkbox" name="u-alan" value="tekne">Tekne</label>
+            </div>
+            <small class="ipucu" id="u-alan-y" hidden>Yönetici her alanı görür ve kullanıcıları yönetir.</small>
+          </fieldset>
+          <p class="a-msj" id="kl-msj" role="alert"></p>
+          <div class="kl-eylem">
+            <button type="button" class="ikincil" id="kl-vazgec">Vazgeç</button>
+            <button type="submit" class="birincil" id="kl-kaydet">Kullanıcıyı ekle</button>
+          </div>
+          <div class="kl-silk" id="kl-silk" hidden>
+            <button type="button" class="ince-tehlike" id="kl-sil">Kullanıcıyı sil</button>
+            <div class="onay" id="kl-onay" role="group" aria-labelledby="kl-onay-m" hidden>
+              <p id="kl-onay-m"></p>
+              <div>
+                <button type="button" class="ikincil" id="kl-onay-hayir">Vazgeç</button>
+                <button type="button" class="tehlike" id="kl-onay-evet">Sil</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ŞİFREMİ DEĞİŞTİR (her rol) -->
+  <section class="kl formda sd" id="v-sifre" hidden aria-labelledby="h-sifre">
+    <div class="kl-ust">
+      <button type="button" class="geri" id="sd-geri">‹ Ana ekran</button>
+      <h2 id="h-sifre">Şifremi değiştir</h2>
+    </div>
+    <div class="kl-govde">
+      <form class="kl-form" id="f-sifre" novalidate aria-labelledby="h-sifre">
+        <!-- Şifre yöneticisi doğru hesabı güncellesin diye kullanıcı adı (görünmez) -->
+        <input type="text" class="sr" id="sd-kullanici" name="username" autocomplete="username" readonly tabindex="-1" aria-hidden="true">
+        <div class="form">
+          <div class="alan">
+            <label for="sd-eski">Mevcut şifre</label>
+            <div class="sifre">
+              <input class="girdi" id="sd-eski" name="current-password" type="password" autocomplete="current-password" enterkeyhint="next" required>
+              <span class="ekbtn"><button type="button" class="goster" aria-controls="sd-eski" aria-pressed="false">Göster</button></span>
+            </div>
+          </div>
+          <div class="alan">
+            <label for="sd-yeni">Yeni şifre</label>
+            <div class="sifre">
+              <input class="girdi" id="sd-yeni" name="new-password" type="password" autocomplete="new-password" enterkeyhint="next" minlength="8" required aria-describedby="sd-yeni-y">
+              <span class="ekbtn"><button type="button" class="goster" aria-controls="sd-yeni sd-yeni2" aria-pressed="false">Göster</button></span>
+            </div>
+            <small id="sd-yeni-y">En az 8 karakter</small>
+          </div>
+          <div class="alan">
+            <label for="sd-yeni2">Yeni şifre (tekrar)</label>
+            <input class="girdi" id="sd-yeni2" name="new-password-2" type="password" autocomplete="new-password" enterkeyhint="go" minlength="8" required>
+          </div>
+          <p class="a-msj" id="sd-msj" role="alert"></p>
+          <div class="kl-eylem">
+            <button type="button" class="ikincil" id="sd-vazgec">Vazgeç</button>
+            <button type="submit" class="birincil" id="sd-gonder">Şifreyi değiştir</button>
+          </div>
+        </div>
+      </form>
+      <aside class="sd-not" aria-labelledby="sd-not-b">
+        <h3 id="sd-not-b">İyi bir şifre</h3>
+        <ul>
+          <li>En az 8 karakter; uzun bir söz öbeği hatırlaması kolay ve güçlüdür.</li>
+          <li>Başka hesaplarında kullandığın bir şifreyi seçme.</li>
+          <li>Şifreni unutursan yönetici sana yeni bir geçici şifre verebilir.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite">
@@ -244,6 +611,7 @@ footer{display:flex;justify-content:center}
   <button type="button" id="t-undo">Geri al</button>
 </div>
 
+<script src="hesap.js"></script>
 <script>
 /* Veri katmanı: ileride iHost (ev) ve xRoute BLE (tekne) bağlantıları bu fonksiyonların yerine geçecek.
    Tekne için kapatma komutu: "swN\n" (FFE0/FFE1), ev için iHost API'si.
@@ -337,12 +705,20 @@ function ago(ms){
   if (m < 60) return m + " dk önce";
   return Math.floor(m / 60) + " sa önce";
 }
+/* Hesap: kart → yetki alanı. Aile rolünde yalnız yetkili kartlar görünür. */
+const ALAN = {home:"ev", boat:"tekne"};
+let gorunur = {home:true, boat:true};
+let sonPanel = null;   // kişisel ayar: {alan, cihaz, zaman}
+const CIHAZDA = {telefon:"telefonda", tablet:"tablette"};
+
 function renderMeta(){
   const now = Date.now();
   const stale = {home: !state.homeStatus.hub, boat: !state.boatStatus.link};
   for (const p of ["home","boat"]){
+    const son = sonPanel && sonPanel.alan === ALAN[p]
+      ? `<span class="son">Son açtığın<span class="sr"> panel,</span><small>· ${CIHAZDA[sonPanel.cihaz] ? CIHAZDA[sonPanel.cihaz] + ", " : ""}${ago(now - sonPanel.zaman)}</small></span>` : "";
     document.getElementById("m-"+p).innerHTML =
-      (stale[p] ? '<span class="last">Son bilinen değerler</span>' : "<span>Durum</span>") +
+      (stale[p] ? '<span class="last">Son bilinen değerler</span>' + son : (son || "<span>Durum</span>")) +
       `<span>Güncelleme: ${ago(now - state.updated[p])}</span>`;
   }
 }
@@ -351,13 +727,17 @@ function renderStrip(){
   const b = state.boatStatus, h = state.homeStatus;
   const n = p => state[p].filter(l => l.on).length;
   const lit = p => { const k = n(p); return `<li class="chip${k ? " lit" : ""}">${PLACE[p]} · ${k ? `<b>${k}</b> ışık açık` : "ışıklar kapalı"}</li>`; };
-  let html = lit("home") + lit("boat");
-  html += batLow(b)
-    ? `<li class="chip warn">${WARN}Akü <b>%${fmt(b.bat)}</b></li>`
-    : `<li class="chip">Akü <b>%${fmt(b.bat)}</b></li>`;
-  if (waterLow(b)) html += `<li class="chip warn">${WARN}Temiz su <b>%${fmt(b.water)}</b></li>`;
-  if (!b.link) html += `<li class="chip warn">${WARN}Tekne bağlantısı koptu</li>`;
-  if (!h.hub) html += `<li class="chip warn">${WARN}iHost koptu</li>`;
+  let html = "";
+  if (gorunur.home) html += lit("home");
+  if (gorunur.boat){
+    html += lit("boat");
+    html += batLow(b)
+      ? `<li class="chip warn">${WARN}Akü <b>%${fmt(b.bat)}</b></li>`
+      : `<li class="chip">Akü <b>%${fmt(b.bat)}</b></li>`;
+    if (waterLow(b)) html += `<li class="chip warn">${WARN}Temiz su <b>%${fmt(b.water)}</b></li>`;
+    if (!b.link) html += `<li class="chip warn">${WARN}Tekne bağlantısı koptu</li>`;
+  }
+  if (gorunur.home && !h.hub) html += `<li class="chip warn">${WARN}iHost koptu</li>`;
   document.getElementById("strip").innerHTML = html;
 }
 
@@ -461,6 +841,460 @@ document.getElementById("clock").innerHTML =
   d.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"}) + '<span class="tag"> · ev ve tekne tek ekranda</span>';
 renderAll();
 setInterval(renderMeta, 15000);
+
+/* ================= Hesap: giriş, kurulum, menü, kullanıcılar ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const bas = ad => (String(ad || "?").trim()[0] || "?").toLocaleUpperCase("tr-TR");
+const KULLANICI_RE = /^[a-z0-9._-]{3,32}$/;
+const ROL_AD = {yonetici:"Yönetici", aile:"Aile"};
+const cihaz = () => Math.min(screen.width, screen.height) >= 600 ? "tablet" : "telefon";
+let ben = null;          // giriş yapmış kullanıcı
+let cevrimdisi = false;
+
+function ekran(ad){       // yuk | hata | giris | kurulum | uygulama
+  for (const [k, id] of [["yuk","a-yuk"],["hata","a-hata"],["giris","f-giris"],["kurulum","f-kurulum"]]) $(id).hidden = k !== ad;
+  document.body.classList.toggle("oturumsuz", ad !== "uygulama");
+  if (ad !== "uygulama") { hideToast(); menuKapat(false); }
+}
+function yukleniyor(m){ $("a-yuk-m").textContent = m || "Hesap sunucusuna bağlanılıyor…"; ekran("yuk"); }
+function sunucuHatasi(e, tekrar){
+  $("a-hata-m").textContent = e && e.ag
+    ? "Hesap sunucusuna şu anda ulaşılamıyor. İnternet bağlantını kontrol edip tekrar dene."
+    : "Sunucu beklenmedik bir yanıt verdi" + (e && e.message ? ": " + e.message : "") + ". Biraz sonra tekrar dene.";
+  $("a-tekrar").onclick = tekrar || baslat;
+  ekran("hata"); $("a-tekrar").focus();
+}
+function hataMesaji(e){
+  if (e && e.ag) return "Sunucuya ulaşılamadı. Bağlantını kontrol edip tekrar dene.";
+  return (e && e.message) || "Bir şeyler ters gitti.";
+}
+
+/* Şifreyi göster düğmeleri */
+document.querySelectorAll(".goster").forEach(b => b.addEventListener("click", () => {
+  const ac = b.getAttribute("aria-pressed") !== "true";
+  b.setAttribute("aria-pressed", String(ac));
+  b.textContent = ac ? "Gizle" : "Göster";
+  for (const id of b.getAttribute("aria-controls").split(" ")) $(id).type = ac ? "text" : "password";
+}));
+function sifreleriGizle(form){
+  form.querySelectorAll(".goster").forEach(b => { if (b.getAttribute("aria-pressed") === "true") b.click(); });
+}
+/* Klavye açılınca odaklanan alan görünür kalsın (iOS'ta alt alanlar klavyenin altında kalabiliyor) */
+document.addEventListener("focusin", e => {
+  if (!e.target.matches || !e.target.matches(".girdi")) return;
+  setTimeout(() => e.target.scrollIntoView({block:"center", behavior: reduce ? "auto" : "smooth"}), 300);
+});
+
+/* 429: bekleme süresince düğmeyi kilitle, kalan süreyi göster */
+let bekleSayac = 0;
+function bekle(btn, saniye, etiket){
+  clearInterval(bekleSayac);
+  const bitis = Date.now() + saniye * 1000;
+  const yaz = () => {
+    const k = Math.max(0, Math.ceil((bitis - Date.now()) / 1000));
+    if (!k){ clearInterval(bekleSayac); btn.disabled = false; btn.textContent = etiket; return; }
+    btn.disabled = true;
+    btn.textContent = `Tekrar dene · ${Math.floor(k / 60)}:${String(k % 60).padStart(2, "0")}`;
+  };
+  yaz(); bekleSayac = setInterval(yaz, 1000);
+}
+
+/* ---------- açılış ---------- */
+async function baslat(){
+  if (!window.hesap) return sunucuHatasi({message:"hesap.js yüklenemedi"});
+  if (hesap.oturumVar()){
+    const k = hesap.kullanici();
+    if (k){ uygulamayiAc(k, true); denetle(); return; }   // son bilinen kullanıcıyla hemen aç
+    yukleniyor("Oturum denetleniyor…");
+    try { const r = await hesap.ben(); cevrimdisi = r.cevrimdisi; uygulamayiAc(r.kullanici); kisiselEsitle(); }
+    catch (e){ if (e.durum === 401) girisGoster(); else sunucuHatasi(e); }
+    return;
+  }
+  yukleniyor();
+  try {
+    const { kurulu } = await hesap.durum();
+    kurulu ? girisGoster() : kurulumGoster();
+  } catch (e){ sunucuHatasi(e); }
+}
+async function denetle(){
+  try {
+    const r = await hesap.ben();
+    cevrimdisi = r.cevrimdisi;
+    uygulamayiAc(r.kullanici);        // rol / alanlar değişmiş olabilir
+  } catch (e){ if (e.durum !== 401) cevrimdisi = true; }
+  esitlemeYaz();
+  kisiselEsitle();
+}
+
+function girisGoster(mesaj, bilgi){
+  const f = $("f-giris"); f.reset(); sifreleriGizle(f);
+  $("g-msj").textContent = mesaj || ""; $("g-msj").classList.toggle("bilgi", !!bilgi);
+  ekran("giris");
+  const ad = $("g-kullanici");
+  if (ben && ben.kullanici) ad.value = ben.kullanici;
+  ben = null;
+  (ad.value ? $("g-sifre") : ad).focus({preventScroll:true});
+}
+/* Başarılı giriş/kurulum/şifre değişikliği sonrası şifre sayfada (DOM'da) kalmasın */
+function formuTemizle(f){
+  sifreleriGizle(f); f.reset();
+  f.querySelectorAll("input[type=password]").forEach(i => { i.value = ""; i.removeAttribute("aria-invalid"); });
+}
+function kurulumGoster(){
+  const f = $("f-kurulum"); f.reset(); sifreleriGizle(f); $("k-msj").textContent = "";
+  ekran("kurulum"); $("k-ad").focus({preventScroll:true});
+}
+
+$("f-giris").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msj = $("g-msj"), btn = $("g-gonder");
+  const kullanici = $("g-kullanici").value.trim().toLowerCase(), sifre = $("g-sifre").value;
+  msj.classList.remove("bilgi");
+  $("g-kullanici").setAttribute("aria-invalid", String(!kullanici));
+  $("g-sifre").setAttribute("aria-invalid", String(!sifre));
+  if (!kullanici || !sifre){ msj.textContent = "Kullanıcı adı ve şifreyi yaz."; (kullanici ? $("g-sifre") : $("g-kullanici")).focus(); return; }
+  btn.disabled = true; btn.textContent = "Giriş yapılıyor…"; msj.textContent = "";
+  try {
+    const k = await hesap.giris(kullanici, sifre);
+    btn.disabled = false; btn.textContent = "Giriş yap";
+    formuTemizle($("f-giris"));
+    cevrimdisi = false; uygulamayiAc(k); esitlemeYaz(); kisiselEsitle();
+  } catch (err){
+    btn.disabled = false; btn.textContent = "Giriş yap";
+    msj.textContent = hataMesaji(err);
+    if (err.durum === 429 && err.bekle) bekle(btn, err.bekle, "Giriş yap");
+    if (err.durum === 401){ $("g-sifre").value = ""; $("g-sifre").setAttribute("aria-invalid","true"); $("g-sifre").focus(); }
+  }
+});
+
+$("f-kurulum").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msj = $("k-msj"), btn = $("k-gonder");
+  const ad = $("k-ad").value.trim(), kullanici = $("k-kullanici").value.trim().toLowerCase();
+  const s1 = $("k-sifre").value, s2 = $("k-sifre2").value;
+  const hata = (alan, m) => { msj.textContent = m; alan.setAttribute("aria-invalid","true"); alan.focus(); };
+  for (const id of ["k-ad","k-kullanici","k-sifre","k-sifre2"]) $(id).removeAttribute("aria-invalid");
+  if (!ad) return hata($("k-ad"), "Adını yaz.");
+  if (!KULLANICI_RE.test(kullanici)) return hata($("k-kullanici"), "Kullanıcı adı 3-32 karakter olmalı; küçük harf, rakam, . _ - kullanılabilir.");
+  if (s1.length < 8) return hata($("k-sifre"), "Şifre en az 8 karakter olmalı.");
+  if (s1 !== s2) return hata($("k-sifre2"), "İki şifre aynı değil.");
+  btn.disabled = true; btn.textContent = "Kuruluyor…"; msj.textContent = "";
+  try {
+    const k = await hesap.kurulum({ad, kullanici, sifre: s1});
+    formuTemizle($("f-kurulum"));
+    cevrimdisi = false; uygulamayiAc(k); esitlemeYaz(); kisiselEsitle();
+    showNote(`Hoş geldin ${k.ad}. Hesabın yönetici olarak kuruldu.`);
+  } catch (err){
+    if (err.durum === 409) return girisGoster("Kurulum daha önce yapılmış. Hesabınla giriş yap.", true);
+    msj.textContent = hataMesaji(err);
+  } finally { btn.disabled = false; btn.textContent = "Kurulumu tamamla"; }
+});
+
+window.addEventListener("aksi-oturum-kapandi", e => {
+  if (document.body.classList.contains("oturumsuz") && !$("f-giris").hidden) return;
+  anaEkranaDon();
+  girisGoster((e.detail && e.detail.mesaj) || "Oturum kapandı, yeniden giriş yap.", true);
+});
+
+/* ---------- giriş sonrası ---------- */
+function uygulamayiAc(k, onbellekten){
+  ben = k;
+  const yon = k.rol === "yonetici";
+  const al = yon ? ["ev","tekne"] : (k.alanlar || []);
+  gorunur = {home: al.includes("ev"), boat: al.includes("tekne")};
+  $("card-home").hidden = !gorunur.home;
+  $("card-boat").hidden = !gorunur.boat;
+  $("bos-alan").hidden = gorunur.home || gorunur.boat;
+  $("ana").classList.toggle("tek", gorunur.home !== gorunur.boat);
+  $("alt").hidden = !(gorunur.home || gorunur.boat) || !$("v-kul").hidden || !$("v-sifre").hidden;
+  $("hk-av").textContent = bas(k.ad);
+  $("hk-ad").textContent = k.ad;
+  $("hk-btn").setAttribute("aria-label", `${k.ad}, hesap menüsü`);
+  $("hk-tam").textContent = k.ad;
+  $("hk-rol").textContent = `@${k.kullanici} · ${ROL_AD[k.rol] || k.rol}`;
+  $("hk-kul").hidden = !yon;
+  if (!yon && !$("v-kul").hidden) anaEkranaDon();
+  const kv = hesap.kisisel.onbellek().veri;
+  sonPanel = kv && kv.sonPanel || null;
+  esitlemeYaz(onbellekten ? "bekliyor" : undefined);
+  renderStrip(); renderMeta();
+  ekran("uygulama");
+}
+function esitlemeYaz(d){
+  const el = $("hk-esit");
+  const cd = d !== "bekliyor" && cevrimdisi;
+  el.classList.toggle("cd", cd);
+  el.textContent = d === "bekliyor" ? "Ayarlar eşitleniyor…" : cd ? "Çevrimdışı · son bilinen ayarlar" : "Ayarlar eşitlendi";
+  $("hk-nokta").hidden = !cd;
+}
+
+/* Kişisel ayar eşitleme: şimdilik "son açılan panel". Başka cihazda açılan panel burada görünür. */
+async function kisiselEsitle(){
+  try {
+    const a = await hesap.kisisel.esitle();
+    if (a.cevrimdisi) cevrimdisi = true;
+    sonPanel = a.veri && a.veri.sonPanel || null;
+    renderMeta(); esitlemeYaz();
+  } catch (e){ /* 401 olayı ayrıca işlenir */ }
+}
+for (const p of ["home","boat"]){
+  document.querySelector(`#card-${p} .open`).addEventListener("click", () => {
+    if (!ben) return;
+    // Sayfa hemen değişir: değer önce yerelde saklanır, istek keepalive ile gider; gitmezse sonraki açılışta gönderilir.
+    sonPanel = {alan: ALAN[p], cihaz: cihaz(), zaman: Date.now()};
+    renderMeta();   // panelden geri dönülünce (bfcache) güncel görünsün
+    hesap.kisisel.ayarla({sonPanel}, {keepalive:true}).catch(() => {});
+  });
+}
+// Başka bir cihazda panel açıldıysa, sayfaya geri dönüldüğünde güncellensin
+document.addEventListener("visibilitychange", () => { if (!document.hidden && ben) kisiselEsitle(); });
+
+/* ---------- kullanıcı menüsü ---------- */
+const hkBtn = $("hk-btn"), hkMenu = $("hk-menu");
+function menuAc(){
+  hkMenu.hidden = false; hkBtn.setAttribute("aria-expanded","true");
+  const ilk = hkMenu.querySelector("[role=menuitem]:not([hidden])"); if (ilk) ilk.focus();
+}
+function menuKapat(odak = true){
+  if (hkMenu.hidden) return;
+  hkMenu.hidden = true; hkBtn.setAttribute("aria-expanded","false");
+  if (odak) hkBtn.focus();
+}
+hkBtn.addEventListener("click", () => hkMenu.hidden ? menuAc() : menuKapat());
+document.addEventListener("pointerdown", e => { if (!hkMenu.hidden && !$("hk").contains(e.target)) menuKapat(false); });
+hkMenu.addEventListener("keydown", e => {
+  const ogeler = [...hkMenu.querySelectorAll("[role=menuitem]:not([hidden])")];
+  const i = ogeler.indexOf(document.activeElement);
+  if (e.key === "Escape"){ e.preventDefault(); menuKapat(); }
+  else if (e.key === "ArrowDown"){ e.preventDefault(); ogeler[(i + 1) % ogeler.length].focus(); }
+  else if (e.key === "ArrowUp"){ e.preventDefault(); ogeler[(i - 1 + ogeler.length) % ogeler.length].focus(); }
+  else if (e.key === "Tab") menuKapat(false);
+});
+$("hk-cikis").addEventListener("click", async () => {
+  menuKapat(false);
+  const ad = ben && ben.kullanici;
+  await hesap.cikis();
+  anaEkranaDon(); sonPanel = null;
+  ben = ad ? {kullanici: ad} : null;   // giriş formunda kullanıcı adı dolu gelsin
+  girisGoster("Çıkış yapıldı.", true);
+});
+$("hk-kul").addEventListener("click", () => { menuKapat(false); kullanicilariAc(); });
+$("hk-sifre").addEventListener("click", () => { menuKapat(false); sifreAc(); });
+
+/* ---------- kullanıcılar ekranı ---------- */
+const kl = $("v-kul"), klForm = $("kl-form");
+const sd = $("v-sifre"), sdForm = $("f-sifre");
+let liste = [], secili = null;     // secili: düzenlenen kullanıcı (null = yeni)
+
+function anaEkranaDon(){
+  if (kl.hidden && sd.hidden) return;
+  if (!sd.hidden) formuTemizle(sdForm);   // şifreler sayfada kalmasın
+  $("sd-msj").textContent = "";
+  kl.hidden = true; sd.hidden = true; $("ana").hidden = false;
+  $("alt").hidden = !(gorunur.home || gorunur.boat);
+  window.scrollTo(0, 0);
+}
+async function kullanicilariAc(){
+  if (!sd.hidden) anaEkranaDon();
+  $("ana").hidden = true; $("alt").hidden = true; kl.hidden = false;
+  window.scrollTo(0, 0);
+  yeniForm(false);
+  $("kl-geri").focus();
+  await listeYukle();
+}
+$("kl-geri").addEventListener("click", () => { anaEkranaDon(); hkBtn.focus(); });
+
+async function listeYukle(){
+  $("kl-yuk").hidden = false; $("kl-liste-msj").textContent = "";
+  try { liste = await hesap.kullanicilar.liste(); }
+  catch (e){ $("kl-liste-msj").textContent = hataMesaji(e); }
+  $("kl-yuk").hidden = true;
+  listeCiz();
+}
+function tarih(ms){ return ms ? new Date(ms).toLocaleDateString("tr-TR", {day:"numeric", month:"short"}) : null; }
+function listeCiz(){
+  $("kl-say").textContent = liste.length;
+  $("kl-liste").innerHTML = liste.map(k => {
+    const alanlar = k.rol === "yonetici" ? "" : (k.alanlar.length
+      ? k.alanlar.map(a => `<span class="rozet ${a}">${a === "ev" ? "Ev" : "Tekne"}</span>`).join("")
+      : '<span class="rozet">Alan yok</span>');
+    const son = tarih(k.sonGiris);
+    return `<li><button type="button" class="kl-satir" data-id="${esc(k.id)}"${secili && secili.id === k.id ? ' aria-current="true"' : ""}>
+      <span class="av" aria-hidden="true">${esc(bas(k.ad))}</span>
+      <b>${esc(k.ad)}</b>
+      <span class="alt">@${esc(k.kullanici)}
+        <span class="rozet${k.rol === "yonetici" ? " yon" : ""}">${ROL_AD[k.rol] || esc(k.rol)}</span>${alanlar}
+        ${ben && k.id === ben.id ? '<span class="rozet sen">Sen</span>' : ""}
+        <span>${son ? "Son giriş " + son : "Hiç giriş yapmadı"}</span></span>
+    </button></li>`;
+  }).join("");
+}
+$("kl-liste").addEventListener("click", e => {
+  const b = e.target.closest(".kl-satir"); if (!b) return;
+  const k = liste.find(x => x.id === b.dataset.id); if (k) duzenleForm(k);
+});
+$("kl-yeni").addEventListener("click", () => yeniForm(true));
+
+function rolSec(){
+  const yon = klForm.querySelector("[name=u-rol]:checked").value === "yonetici";
+  klForm.querySelectorAll("[name=u-alan]").forEach(c => { c.disabled = yon; if (yon) c.checked = true; });
+  $("u-alan-y").hidden = !yon;
+}
+klForm.querySelectorAll("[name=u-rol]").forEach(r => r.addEventListener("change", rolSec));
+
+function formuDoldur(k){
+  klForm.reset(); sifreleriGizle(klForm);
+  $("kl-msj").textContent = ""; $("kl-msj").classList.remove("bilgi");
+  for (const id of ["u-ad","u-kullanici","u-sifre"]) $(id).removeAttribute("aria-invalid");
+  $("kl-onay").hidden = true; $("kl-sil").hidden = false;
+  $("u-ad").value = k ? k.ad : "";
+  $("u-kullanici").value = k ? k.kullanici : "";
+  $("u-kullanici").disabled = !!k;
+  $("u-kullanici-y").hidden = !!k;
+  $("u-sifre").value = "";
+  $("u-sifre").required = !k;
+  $("u-sifre-l").textContent = k ? "Şifreyi sıfırla (isteğe bağlı)" : "Geçici şifre";
+  $("u-sifre-y").textContent = k
+    ? (ben && k.id === ben.id ? "Boş bırakırsan şifren değişmez." : "Boş bırakırsan şifre değişmez. Sıfırlanınca bu kişinin açık oturumları kapanır.")
+    : "En az 8 karakter. Şifreyi kişiye kendin ilet.";
+  const rol = k ? k.rol : "aile";
+  klForm.querySelector(`[name=u-rol][value=${rol}]`).checked = true;
+  klForm.querySelectorAll("[name=u-alan]").forEach(c => c.checked = k ? k.alanlar.includes(c.value) : c.value === "ev");
+  rolSec();
+  $("kl-form-bas").textContent = k ? k.ad : "Yeni kullanıcı";
+  $("kl-kaydet").textContent = k ? "Değişiklikleri kaydet" : "Kullanıcıyı ekle";
+  $("kl-silk").hidden = !k || (ben && k.id === ben.id);   // kendini silerek kilitlenme olmasın
+}
+function yeniForm(odakla){
+  secili = null; formuDoldur(null); listeCiz();
+  kl.classList.toggle("formda", !!odakla);
+  if (odakla) $("u-ad").focus({preventScroll:true});
+}
+function duzenleForm(k){
+  hideToast(); secili = k; formuDoldur(k); listeCiz();
+  kl.classList.add("formda");
+  klForm.scrollIntoView({block:"start", behavior: reduce ? "auto" : "smooth"});
+  $("u-ad").focus({preventScroll:true});
+}
+$("kl-vazgec").addEventListener("click", () => {
+  const id = secili && secili.id;
+  yeniForm(false);
+  const b = id && $("kl-liste").querySelector(`[data-id="${CSS.escape(id)}"]`);
+  (b || $("kl-yeni")).focus();
+});
+
+$("u-oner").addEventListener("click", () => {
+  const harf = "abcdefghjkmnpqrstuvwxyz23456789";
+  const r = crypto.getRandomValues(new Uint32Array(10));
+  const s = [...r].map(x => harf[x % harf.length]).join("");
+  $("u-sifre").value = s.slice(0, 5) + "-" + s.slice(5);
+  const g = klForm.querySelector(".goster");
+  if (g.getAttribute("aria-pressed") !== "true") g.click();   // yönetici okuyup iletebilsin
+});
+
+klForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  const msj = $("kl-msj"), btn = $("kl-kaydet"), etiket = btn.textContent;
+  msj.classList.remove("bilgi");
+  const hata = (alan, m) => { msj.textContent = m; alan.setAttribute("aria-invalid","true"); alan.focus(); };
+  for (const id of ["u-ad","u-kullanici","u-sifre"]) $(id).removeAttribute("aria-invalid");
+  const ad = $("u-ad").value.trim(), kullanici = $("u-kullanici").value.trim().toLowerCase(), sifre = $("u-sifre").value;
+  const rol = klForm.querySelector("[name=u-rol]:checked").value;
+  const alanlar = [...klForm.querySelectorAll("[name=u-alan]:checked")].map(c => c.value);
+  if (!ad) return hata($("u-ad"), "Ad yaz.");
+  if (!secili && !KULLANICI_RE.test(kullanici)) return hata($("u-kullanici"), "Kullanıcı adı 3-32 karakter olmalı; küçük harf, rakam, . _ - kullanılabilir.");
+  if ((!secili || sifre) && sifre.length < 8) return hata($("u-sifre"), "Şifre en az 8 karakter olmalı.");
+  btn.disabled = true; btn.textContent = "Kaydediliyor…"; msj.textContent = "";
+  try {
+    let k;
+    if (secili){
+      const d = {ad, rol, alanlar};
+      if (sifre) d.sifre = sifre;
+      k = await hesap.kullanicilar.duzenle(secili.id, d);
+      showNote(`${k.ad} güncellendi` + (sifre ? ", şifre sıfırlandı" : ""));
+    } else {
+      k = await hesap.kullanicilar.ekle({ad, kullanici, sifre, rol, alanlar});
+      showNote(`${k.ad} eklendi`);
+    }
+    if (ben && k.id === ben.id){
+      uygulamayiAc(Object.assign({}, ben, {ad: k.ad, rol: k.rol, alanlar: k.alanlar}));
+      if (k.rol !== "yonetici") return;      // artık yönetici değil: ana ekrana dönüldü
+    }
+    await listeYukle();
+    yeniForm(false);
+    const b = $("kl-liste").querySelector(`[data-id="${CSS.escape(k.id)}"]`); if (b) b.focus();
+  } catch (err){
+    msj.textContent = hataMesaji(err);
+    if (err.durum === 409 && !secili) $("u-kullanici").setAttribute("aria-invalid","true");
+  } finally { btn.disabled = false; if (btn.textContent === "Kaydediliyor…") btn.textContent = etiket; }
+});
+
+$("kl-sil").addEventListener("click", () => {
+  hideToast();   // alttaki bildirim onay düğmelerini örtmesin
+  $("kl-onay-m").textContent = `${secili.ad} (@${secili.kullanici}) silinsin mi? Hesabı ve kişisel ayarları kalıcı olarak silinir.`;
+  $("kl-sil").hidden = true; $("kl-onay").hidden = false; $("kl-onay-hayir").focus();
+});
+$("kl-onay-hayir").addEventListener("click", () => { $("kl-onay").hidden = true; $("kl-sil").hidden = false; $("kl-sil").focus(); });
+$("kl-onay-evet").addEventListener("click", async () => {
+  const btn = $("kl-onay-evet"), k = secili;
+  btn.disabled = true; btn.textContent = "Siliniyor…";
+  try {
+    await hesap.kullanicilar.sil(k.id);
+    showNote(`${k.ad} silindi`);
+    yeniForm(false); await listeYukle(); $("kl-yeni").focus();
+  } catch (err){
+    $("kl-onay").hidden = true; $("kl-sil").hidden = false;
+    $("kl-msj").textContent = hataMesaji(err);    // ör. "Son yönetici silinemez" (409)
+  } finally { btn.disabled = false; btn.textContent = "Sil"; }
+});
+
+/* ---------- şifremi değiştir (her rol) ---------- */
+function sifreAc(){
+  if (!kl.hidden) anaEkranaDon();
+  hideToast();
+  formuTemizle(sdForm); $("sd-msj").textContent = ""; $("sd-msj").classList.remove("bilgi");
+  $("sd-kullanici").value = (ben && ben.kullanici) || "";
+  $("ana").hidden = true; $("alt").hidden = true; sd.hidden = false;
+  window.scrollTo(0, 0);
+  $("sd-eski").focus({preventScroll:true});
+}
+const sdKapat = () => { anaEkranaDon(); hkBtn.focus(); };
+$("sd-geri").addEventListener("click", sdKapat);
+$("sd-vazgec").addEventListener("click", sdKapat);
+
+sdForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  const msj = $("sd-msj"), btn = $("sd-gonder"), ETIKET = "Şifreyi değiştir";
+  if (btn.disabled) return;
+  const eski = $("sd-eski").value, y1 = $("sd-yeni").value, y2 = $("sd-yeni2").value;
+  const hata = (alan, m) => { msj.textContent = m; alan.setAttribute("aria-invalid","true"); alan.focus(); };
+  msj.classList.remove("bilgi");
+  for (const id of ["sd-eski","sd-yeni","sd-yeni2"]) $(id).removeAttribute("aria-invalid");
+  if (!eski) return hata($("sd-eski"), "Mevcut şifreni yaz.");
+  if (y1.length < 8) return hata($("sd-yeni"), "Yeni şifre en az 8 karakter olmalı.");
+  if (y1 !== y2) return hata($("sd-yeni2"), "İki yeni şifre aynı değil.");
+  if (y1 === eski) return hata($("sd-yeni"), "Yeni şifre mevcut şifreyle aynı olamaz.");
+  btn.disabled = true; btn.textContent = "Değiştiriliyor…"; msj.textContent = "";
+  try {
+    await hesap.sifreDegistir(eski, y1);
+    btn.disabled = false; btn.textContent = ETIKET;
+    formuTemizle(sdForm);
+    anaEkranaDon(); hkBtn.focus();
+    showNote("Şifren değiştirildi");
+  } catch (err){
+    btn.disabled = false; btn.textContent = ETIKET;
+    if (err.eskiYanlis){
+      msj.textContent = "Mevcut şifre yanlış.";
+      $("sd-eski").value = ""; $("sd-eski").setAttribute("aria-invalid","true"); $("sd-eski").focus();
+      return;
+    }
+    msj.textContent = hataMesaji(err);
+    if (err.durum === 429 && err.bekle) bekle(btn, err.bekle, ETIKET);
+  }
+});
+
+baslat();
 </script>
 
 </body>
