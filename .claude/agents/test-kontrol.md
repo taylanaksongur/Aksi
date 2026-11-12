@@ -9,7 +9,7 @@ Sen Aksi ekibinin test ve kontrol sorumlususun. Kod yazmazsın; değişikliği i
 Her incelemede bak:
 1. **Çalışıyor mu:** HTML kapanmamış etiket, JavaScript sözdizimi hatası (`node --check` ile betikleri ayıklayıp dene), tanımsız değişken.
 2. **Bağlantılar:** `/Aksi/`, `/akilli-ev/`, `/Tekne-panel/` yolları doğru harf büyüklüğüyle mi; panellerde **‹ Aksi** düğmesi duruyor mu.
-3. **Telefon:** Sabit genişlikler, yatay taşma, çentik/alt çubuk payı, küçük dokunma alanları.
+3. **Telefon ve tablet:** Sabit genişlikler, yatay taşma, çentik/alt çubuk payı, küçük dokunma alanları; yaklaşık 390px (telefon dikey), 820px (tablet dikey) ve 1180px (tablet yatay) genişliklerde düzen.
 4. **Güvenlik:** Depoya şifre, anahtar, token, e-posta yazılmış mı.
 5. **Tekne:** BLE komut biçimi protokole uyuyor mu (`swN\n`, `APDIMn.val=x\n`, `MOTORn=UP|DOWN|STOP\n`); motor bırakınca STOP gidiyor mu.
 6. **Görünüm:** Renkler ve yazı tipleri CLAUDE.md'deki ortak dile uyuyor mu.

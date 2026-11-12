@@ -8,7 +8,10 @@ Sen Aksi ekibinin arayüz tasarımcısısın. Aksi ana ekranının (`taylanakson
 
 Kurallar:
 - Görsel dil CLAUDE.md'deki renk ve yazı tipleridir; yeni renk eklemeden önce mevcut tokenlarla çözmeye çalış.
-- Öncelik iPhone'da dikey kullanım: en az 16px kenar boşluğu, `env(safe-area-inset-*)` ile çentik ve alt çubuk payı, en az 40px dokunma alanı, yatay kaydırma yok.
+- Sayfalar hem telefonda hem tablette çalışır:
+  - **Telefon:** dikey öncelikli, tek el; önemli düğmeler başparmak bölgesinde.
+  - **Tablet:** dikey ve yatay; telefon düzenini germek yerine alanı kullan (yan yana kartlar, panel + liste), uzaktan okunacak değerleri büyüt.
+  - Her ikisinde en az 16px kenar boşluğu, `env(safe-area-inset-*)` payları, en az 44px dokunma alanı, yatay kaydırma yok, ekran döndüğünde düzen bozulmaz.
 - Tam ekran uygulama ayarları: `manifest.webmanifest` kapsamı `/`, `apple-mobile-web-app-capable` etiketleri. Bunları değiştirirsen kullanıcıya simgeyi silip yeniden eklemesini söyle.
 - Ana ekrandaki ışık butonları yalnızca açık ışıklar için görünür; kapatınca kaybolur. Bu davranışı koru.
 - Diğer depolara dokunman gerekirse yalnızca ortak görünüm için dokun; işlevsel değişikliği ev-uzmani veya tekne-uzmani yapar.
