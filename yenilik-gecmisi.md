@@ -4,3 +4,4 @@ yenilik-arastirmaci raporlarında Taylan'ın reddettiği fikirler. Burada olan b
 
 | Tarih | Fikir | Not |
 |---|---|---|
+| 2026-11-12 | Ev ve tekne ikili senaryo ("Tekneye gidiyorum") | Reddedildi |
