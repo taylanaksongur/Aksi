@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Aksi Kontrol</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: Aksongur Ev Paneli ve The Moon Tekne Paneli ile aynı dil; iki büyük kart yan yana, telefonda alt alta */
+:root{
+  --bg:#0f1430; --panel:#181f45; --panel-2:#20295a; --line:#2c3670;
+  --fg:#eef0ff; --muted:#8c94c9; --accent:#4a63ff; --warm:#ffbf5e;
+  --ok:#36d39a; --cool:#4fc3ff; --danger:#ff6b81; --off:#2a3266;
+  --f-display:"Sora",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(1200px 700px at 50% 20%,#1a2256 0%,var(--bg) 60%) fixed,var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(14px + env(safe-area-inset-top,0px)) calc(28px + env(safe-area-inset-bottom,0px));min-height:100%}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;display:grid;gap:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px 14px}
+h1{font-family:var(--f-display);font-size:20px;font-weight:700;margin:0}
+.sub{color:var(--muted);font-size:12px}
+.sub b{font-family:var(--f-mono);font-weight:500;color:var(--fg)}
+.demo{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,191,94,.12);color:var(--warm);white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.icon{display:flex;justify-content:center;padding:6px 0 0}
+.icon svg{width:190px;max-width:100%;height:auto}
+.name{font-family:var(--f-display);font-size:22px;font-weight:700;text-align:center;margin:0;line-height:1.2}
+.name small{display:block;font-family:var(--f-body);font-size:12px;font-weight:500;color:var(--muted);margin-top:2px}
+.status{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:0}
+.status div{min-width:0;background:var(--panel-2);border-radius:12px;padding:8px 10px}
+.status dt{font-family:var(--f-display);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.status dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+.status dd.ok{color:var(--ok)}
+.lights h3{font-family:var(--f-display);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.count{background:var(--warm);color:#2a1a05;border-radius:999px;font-size:11px;padding:1px 8px;letter-spacing:0;font-family:var(--f-mono)}
+.count.zero{background:var(--panel-2);color:var(--muted)}
+.btns{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
+.lbtn{display:grid;justify-items:start;gap:5px;padding:9px 10px;border-radius:11px;text-align:left;min-width:0;
+  background:#ffbf5e;border:1px solid #ffd38a;color:#2a1a05;box-shadow:0 0 18px -4px #ffbf5e;transition:transform .15s,opacity .25s}
+.lbtn span{font-size:12.5px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
+.lbtn small{font-size:10.5px;color:#5a3a0c;font-family:var(--f-mono)}
+.lbtn svg{color:#5a3a0c}
+.lbtn:active{transform:scale(.97)}
+.lbtn.off{opacity:0;transform:scale(.85)}
+.empty{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px;grid-column:1/-1;padding:4px 2px}
+.empty::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ok)}
+footer{display:flex;justify-content:center}
+.reset{padding:8px 14px;border-radius:10px;background:var(--panel-2);color:var(--muted);font-size:12px;font-weight:600}
+.reset:hover{color:var(--fg)}
+.win{transition:fill .3s}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Aksi</h1>
+      <div class="sub" id="clock">Ev ve tekne tek ekranda</div>
+    </div>
+    <span class="demo">● Örnek veri</span>
+  </header>
+
+  <main class="grid">
+    <!-- EV -->
+    <section class="card home" aria-labelledby="h-home">
+      <div class="icon">
+        <svg viewBox="0 0 200 170" role="img" aria-label="Üç katlı ev">
+          <path d="M20 70 L100 12 L180 70" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+          <rect x="38" y="62" width="124" height="100" rx="6" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="6"/>
+          <line x1="38" y1="95" x2="162" y2="95" stroke="var(--line)" stroke-width="3"/>
+          <line x1="38" y1="128" x2="162" y2="128" stroke="var(--line)" stroke-width="3"/>
+          <!-- 2. kat -->
+          <rect class="win" data-win="h-cocuk" x="56" y="71" width="26" height="17" rx="2" fill="var(--off)"/>
+          <rect class="win" data-win="h-yatak" x="118" y="71" width="26" height="17" rx="2" fill="var(--off)"/>
+          <!-- 1. kat -->
+          <rect class="win" data-win="h-calisma" x="56" y="104" width="26" height="17" rx="2" fill="var(--off)"/>
+          <rect class="win" data-win="h-banyo" x="118" y="104" width="26" height="17" rx="2" fill="var(--off)"/>
+          <!-- zemin -->
+          <rect class="win" data-win="h-salon" x="52" y="137" width="34" height="17" rx="2" fill="var(--off)"/>
+          <rect x="91" y="134" width="18" height="28" rx="2" fill="var(--accent)"/>
+          <rect class="win" data-win="h-mutfak" x="116" y="137" width="30" height="17" rx="2" fill="var(--off)"/>
+        </svg>
+      </div>
+      <h2 class="name" id="h-home">Ev<small>Aksongur Ev Paneli</small></h2>
+      <dl class="status">
+        <div><dt>Termostat</dt><dd>21,5 °C · ısıtma</dd></div>
+        <div><dt>Hedef</dt><dd>22 °C</dd></div>
+        <div><dt>iHost</dt><dd class="ok">Bağlı</dd></div>
+        <div><dt>Prizler</dt><dd>2 açık</dd></div>
+      </dl>
+      <div class="lights">
+        <h3>Açık ışıklar <span class="count" id="c-home">0</span></h3>
+        <div class="btns" id="b-home"></div>
+      </div>
+    </section>
+
+    <!-- TEKNE -->
+    <section class="card boat" aria-labelledby="h-boat">
+      <div class="icon">
+        <svg viewBox="0 0 200 170" role="img" aria-label="Tekne">
+          <line x1="96" y1="18" x2="96" y2="92" stroke="var(--cool)" stroke-width="5" stroke-linecap="round"/>
+          <circle class="win" data-win="b-demir" cx="96" cy="14" r="6" fill="var(--off)"/>
+          <path d="M70 92 L76 64 L136 64 L144 92 Z" fill="var(--panel-2)" stroke="var(--cool)" stroke-width="5" stroke-linejoin="round"/>
+          <rect class="win" data-win="b-kabin" x="86" y="71" width="16" height="12" rx="2" fill="var(--off)"/>
+          <rect class="win" data-win="b-salon" x="110" y="71" width="16" height="12" rx="2" fill="var(--off)"/>
+          <path d="M18 92 H182 L162 128 H42 Z" fill="var(--cool)" stroke="var(--cool)" stroke-width="5" stroke-linejoin="round"/>
+          <circle class="win" data-win="b-seyir" cx="166" cy="100" r="5" fill="var(--off)"/>
+          <circle class="win" data-win="b-guverte" cx="34" cy="100" r="5" fill="var(--off)"/>
+          <path d="M10 146 q15 -10 30 0 t30 0 t30 0 t30 0 t30 0 t30 0" fill="none" stroke="var(--cool)" stroke-width="3" opacity=".5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h2 class="name" id="h-boat">Tekne<small>The Moon</small></h2>
+      <dl class="status">
+        <div><dt>Akü</dt><dd>%86 · 12,8 V</dd></div>
+        <div><dt>Akım</dt><dd>3,4 A</dd></div>
+        <div><dt>Temiz su</dt><dd>%64</dd></div>
+        <div><dt>Kabin</dt><dd>19,4 °C · %58 nem</dd></div>
+      </dl>
+      <div class="lights">
+        <h3>Açık ışıklar <span class="count" id="c-boat">0</span></h3>
+        <div class="btns" id="b-boat"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><button class="reset" id="reset" type="button">Örnek durumu geri yükle</button></footer>
+</div>
+
+<script>
+/* Veri katmanı: ileride iHost (ev) ve xRoute BLE (tekne) bağlantıları bu fonksiyonların yerine geçecek.
+   Tekne için kapatma komutu: "swN\n" (FFE0/FFE1), ev için iHost API'si. */
+const SAMPLE = {
+  home: [
+    {id:"h-salon",   name:"Salon",         where:"Zemin", on:true},
+    {id:"h-mutfak",  name:"Mutfak",        where:"Zemin", on:true},
+    {id:"h-calisma", name:"Çalışma odası", where:"1. kat", on:true},
+    {id:"h-banyo",   name:"Banyo",         where:"1. kat", on:false},
+    {id:"h-cocuk",   name:"Çocuk odası",   where:"2. kat", on:true},
+    {id:"h-yatak",   name:"Yatak odası",   where:"2. kat", on:false}
+  ],
+  boat: [
+    {id:"b-kabin",   name:"Kabin",         where:"sw1", on:true},
+    {id:"b-salon",   name:"Salon",         where:"sw2", on:false},
+    {id:"b-guverte", name:"Güverte",       where:"sw3", on:true},
+    {id:"b-seyir",   name:"Seyir fenerleri", where:"sw4", on:false},
+    {id:"b-demir",   name:"Demir feneri",  where:"sw5", on:true}
+  ]
+};
+let state = JSON.parse(JSON.stringify(SAMPLE));
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+async function turnOff(place, light){
+  // TODO: gerçek cihaza komut gönder (iHost / BLE "swN")
+  light.on = false;
+}
+
+function paintWindows(){
+  for (const place of ["home","boat"]) for (const l of state[place]){
+    const el = document.querySelector(`[data-win="${l.id}"]`);
+    if (el) el.setAttribute("fill", l.on ? "var(--warm)" : "var(--off)");
+  }
+}
+
+function render(place){
+  const box = document.getElementById("b-"+place);
+  const on = state[place].filter(l => l.on);
+  const c = document.getElementById("c-"+place);
+  c.textContent = on.length; c.classList.toggle("zero", on.length === 0);
+  box.innerHTML = "";
+  if (!on.length){
+    box.innerHTML = '<span class="empty">Tüm ışıklar kapalı</span>';
+  }
+  for (const l of on){
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "lbtn"; b.id = "btn-"+l.id;
+    b.setAttribute("aria-label", l.name+" ışığını kapat");
+    b.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></svg><span>${l.name}</span><small>${l.where} · kapat</small>`;
+    b.addEventListener("click", async () => {
+      b.disabled = true;
+      await turnOff(place, l);
+      paintWindows();
+      if (reduce) render(place);
+      else { b.classList.add("off"); setTimeout(() => render(place), 250); }
+    });
+    box.appendChild(b);
+  }
+}
+
+function renderAll(){ render("home"); render("boat"); paintWindows(); }
+document.getElementById("reset").addEventListener("click", () => { state = JSON.parse(JSON.stringify(SAMPLE)); renderAll(); });
+
+const d = new Date();
+document.getElementById("clock").textContent =
+  d.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"}) + " · ev ve tekne tek ekranda";
+renderAll();
+</script>
+
+</body>
+</html>
