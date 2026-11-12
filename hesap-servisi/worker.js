@@ -116,6 +116,8 @@ export class HesapDeposu extends DurableObject {
         kullanici_id TEXT PRIMARY KEY, veri TEXT NOT NULL, surum INTEGER NOT NULL, guncelleme INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS ortak (
         alan TEXT PRIMARY KEY, veri TEXT NOT NULL, surum INTEGER NOT NULL, guncelleme INTEGER NOT NULL, guncelleyen TEXT);
+      CREATE TABLE IF NOT EXISTS kopruler (
+        ad TEXT PRIMARY KEY, url TEXT NOT NULL, anahtar_ozet TEXT NOT NULL, guncelleme INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS denemeler (
         anahtar TEXT PRIMARY KEY, sayi INTEGER NOT NULL, baslangic INTEGER NOT NULL);
     `);
@@ -132,6 +134,40 @@ export class HesapDeposu extends DurableObject {
     }
   }
 
+  async kopruKayit(b) {
+    const ad = String(b.ad || ''), adres = String(b.url || '').replace(/\/+$/, ''), anahtar = String(b.anahtar || '');
+    if (!/^[a-z0-9-]{1,30}$/.test(ad)) throw new Hata(400, 'Geçersiz köprü adı');
+    if (!/^https:\/\/[a-z0-9.-]+(:\d+)?$/.test(adres)) throw new Hata(400, 'Geçersiz adres');
+    if (anahtar.length < 16 || anahtar.length > 200) throw new Hata(400, 'Anahtar 16-200 karakter olmalı');
+    const ozet = hex(await crypto.subtle.digest('SHA-256', enc.encode('kopru:' + anahtar)));
+    const var_ = this.sql.exec('SELECT anahtar_ozet FROM kopruler WHERE ad = ?', ad).toArray()[0];
+    if (var_ && var_.anahtar_ozet !== ozet) throw new Hata(403, 'Köprü anahtarı uyuşmuyor');
+    this.sql.exec(`INSERT INTO kopruler (ad, url, anahtar_ozet, guncelleme) VALUES (?,?,?,?)
+      ON CONFLICT(ad) DO UPDATE SET url = excluded.url, guncelleme = excluded.guncelleme`, ad, adres, ozet, Date.now());
+    return yanit(200, { tamam: true });
+  }
+
+  async kopruIlet(request, ad, alt, ben, m) {
+    if (ad === 'ihost' && !this.alanlari(ben).includes('ev')) throw new Hata(403, 'Ev alanına erişimin yok');
+    if (alt === '/' && m === 'DELETE') {   // yönetici köprü kaydını sıfırlar (yeni anahtar için)
+      if (ben.rol !== 'yonetici') throw new Hata(403, 'Yalnız yönetici');
+      this.sql.exec('DELETE FROM kopruler WHERE ad = ?', ad);
+      return yanit(200, { tamam: true });
+    }
+    const k = this.sql.exec('SELECT url, guncelleme FROM kopruler WHERE ad = ?', ad).toArray()[0];
+    if (!k) throw new Hata(404, 'Köprü henüz kendini bildirmedi');
+    if (alt === '/adres' && m === 'GET') return yanit(200, { url: k.url, guncelleme: k.guncelleme });
+    let r;
+    try {
+      r = await fetch(k.url + alt, {
+        method: m,
+        headers: { 'Authorization': request.headers.get('Authorization') || '', 'Content-Type': 'application/json' },
+        body: m === 'GET' || m === 'HEAD' ? undefined : await request.text(),
+      });
+    } catch (e) { throw new Hata(502, 'Köprüye ulaşılamadı (iHost kapalı ya da tünel değişti)'); }
+    return new Response(await r.text(), { status: r.status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
+  }
+
   async yonlendir(request) {
     const url = new URL(request.url);
     const yol = url.pathname.replace(/\/+$/, '') || '/';
@@ -142,8 +178,15 @@ export class HesapDeposu extends DurableObject {
     if (yol === '/kurulum' && m === 'POST') return this.kurulum(await this.govde(request));
     if (yol === '/giris' && m === 'POST') return this.giris(await this.govde(request), ip);
 
+    // Ev köprüsü (iHost) kendi tünel adresini bildirir. İlk kayıt anahtarı sabitler; sonrakiler aynı anahtarla gelmeli.
+    if (yol === '/kopru/kayit' && m === 'POST') return this.kopruKayit(await this.govde(request));
+
     const oturum = await this.oturumAl(request);
     const ben = oturum.kullanici;
+
+    // Panel → hesap servisi → köprü. Panel köprü adresini bilmek zorunda kalmaz; adres değişse de bu yol aynı kalır.
+    const kp = yol.match(/^\/kopru\/([a-z0-9-]+)(\/.*)?$/);
+    if (kp) return this.kopruIlet(request, kp[1], kp[2] || '/', ben, m);
 
     if (yol === '/cikis' && m === 'POST') {
       this.sql.exec('DELETE FROM oturumlar WHERE ozet = ?', oturum.ozet);
