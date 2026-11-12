@@ -18,6 +18,7 @@ Ana oturum (koordinatör) işi böler ve ilgili uzmana verir:
 - **test-kontrol** – her değişikliği yayına almadan önce kontrol eder
 - **ergonomi-degerlendirici** – her güncellemeden sonra sayfayı kullanım açısından değerlendirir, öneri raporu hazırlar
 - **yenilik-arastirmaci** – benzer ev ve tekne sistemlerini araştırır, eklenebilecek yenilikçi özellikleri raporlar
+- **altyapi-uzmani** – kullanıcı hesapları, yetkiler, ayar eşitleme ve Cloudflare Worker'lar
 
 ## Güncelleme akışı
 
