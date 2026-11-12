@@ -26,17 +26,27 @@
     const yazabilir = () => yetkili() && (h.kullanici() || {}).rol === 'yonetici';
 
     const temizle = (k, deger) => {
-      const g = anahtarlar[k].gizli;
-      if (!g || deger == null) return deger;
-      try { const o = JSON.parse(deger); if (o && typeof o === 'object') { g.forEach(a => delete o[a]); return JSON.stringify(o); } } catch { }
+      const { gizli: g, her } = anahtarlar[k];
+      if ((!g && !her) || deger == null) return deger;
+      try {
+        const o = JSON.parse(deger);
+        if (o && typeof o === 'object') {
+          if (g) g.forEach(a => delete o[a]);
+          if (her) Object.values(o).forEach(v => { if (v && typeof v === 'object') her.forEach(a => delete v[a]); });
+          return JSON.stringify(o);
+        }
+      } catch { }
       return deger;
     };
-    const birlestir = (k, sunucu) => {   // sunucudan gelen değere yereldeki gizli alanları geri koy
-      const g = anahtarlar[k].gizli;
-      if (!g || sunucu == null) return sunucu;
+    const birlestir = (k, sunucu) => {   // sunucudan gelen değere yereldeki gizli/geçici alanları geri koy
+      const { gizli: g, her } = anahtarlar[k];
+      if ((!g && !her) || sunucu == null) return sunucu;
       try {
         const o = JSON.parse(sunucu), y = JSON.parse(oku(k) || 'null');
-        if (o && y) g.forEach(a => { if (a in y) o[a] = y[a]; });
+        if (o && y) {
+          if (g) g.forEach(a => { if (a in y) o[a] = y[a]; });
+          if (her) for (const [id, v] of Object.entries(o)) if (v && y[id]) her.forEach(a => { if (a in y[id]) v[a] = y[id][a]; });
+        }
         return JSON.stringify(o);
       } catch { return sunucu; }
     };
@@ -44,7 +54,9 @@
     // ---- yerel değişikliği yakala
     let zamanlayici = null;
     Storage.prototype.setItem = function (k, v) {
+      const once = this === localStorage && izli.includes(k) ? temizle(k, oku(k)) : null;
       ham.call(this, k, v);
+      if (once !== null && once === temizle(k, v)) return;   // yalnız açık/kapalı gibi geçici alan değişti
       if (this === localStorage && izli.includes(k) && yazabilir()) {   // aile üyesi yalnız okur; yerel değişiklik bekletilmez
         const d = durum();
         d.zaman = Object.assign({}, d.zaman, { [k]: Date.now() });
@@ -98,10 +110,10 @@
       for (const [k, kayit] of Object.entries(sAyar)) {
         if (!izli.includes(k) || !kayit) continue;
         const yerelZ = (d.zaman || {})[k] || 0;
-        if (kayit.zaman <= yerelZ) continue;
+        if (yazabilir() && kayit.zaman <= yerelZ) continue;      // aile üyesinde sunucu her zaman esas
         if ((d.bekleyen || []).includes(k)) continue;           // yerelde gönderilmemiş daha yeni değişiklik
         const yeni = birlestir(k, kayit.deger);
-        if (yeni !== oku(k)) { yaz(k, yeni); degisti = true; }
+        if (temizle(k, yeni) !== temizle(k, oku(k))) { yaz(k, yeni); degisti = true; }
         d.zaman = Object.assign({}, d.zaman, { [k]: kayit.zaman });
       }
       // Sunucuda hiç olmayan yerel anahtarları ilk kez yükle (bu cihaz ilk kaynak olur)
