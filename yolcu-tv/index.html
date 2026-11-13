@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yolcu TV</title><meta name="theme-color" content="#0f1430">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1430;--p1:#181f45;--p2:#20295a;--line:#2c3670;--acc:#4a63ff;--on:#ffbf5e;--ok:#36d39a;--blue:#4fc3ff;--bad:#ff6b81}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:#e8ecff;font:20px/1.3 'IBM Plex Sans',system-ui,sans-serif;min-height:100vh}
+header{display:flex;gap:12px;align-items:center;padding:16px 24px;background:var(--p1);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+h1{font:700 26px 'Sora',sans-serif;flex:1}
+button,input{font:inherit;border-radius:14px;border:1px solid var(--line)}
+button{background:var(--p2);color:#e8ecff;padding:14px 24px;min-height:56px;cursor:pointer}
+button.on{background:var(--acc);border-color:var(--acc)}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;padding:24px}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:18px;padding:28px 16px;text-align:center;min-height:120px;display:flex;flex-direction:column;justify-content:center;gap:6px;cursor:pointer;position:relative}
+.card b{font:600 22px 'Sora',sans-serif}
+.card:active{background:var(--p2);border-color:var(--on)}
+.card small{color:var(--blue);font-size:15px}
+.card .x{position:absolute;top:6px;right:8px;background:none;border:0;min-height:44px;padding:4px 12px;color:var(--bad);opacity:.7}
+#add{display:none;padding:16px 24px 0;gap:10px;flex-wrap:wrap}
+#add.show{display:flex}
+#add input{flex:1;min-width:200px;padding:14px;background:var(--p2);color:#fff}
+#player{position:fixed;inset:0;background:#000;display:none;z-index:10}
+#player.show{display:block}
+#player video,#player iframe{width:100%;height:100%;border:0;background:#000}
+#back{position:absolute;top:14px;left:14px;z-index:11;background:#0f1430cc;backdrop-filter:blur(6px)}
+#msg{position:absolute;bottom:20px;left:0;right:0;text-align:center;color:var(--bad);z-index:11;text-shadow:0 0 6px #000}
+</style>
+</head>
+<body>
+<header>
+  <h1>📺 Yolcu TV</h1>
+  <input id="q" placeholder="Kanal ara" style="padding:14px;background:var(--p2);color:#fff;width:200px"><button id="t-tv" class="on">Canlı TV</button>
+  <button id="t-yt">YouTube</button>
+  <button id="t-add">＋ Ekle</button>
+</header>
+<div id="add">
+  <input id="n" placeholder="Ad">
+  <input id="u" placeholder=".m3u8 / .mp4 / YouTube linki">
+  <button id="save">Kaydet</button>
+</div>
+<div id="grid"></div>
+<div id="player"><button id="back">← Geri</button><div id="msg"></div><div id="host" style="width:100%;height:100%"></div></div>
+
+<script>
+// Varsayılan kanallar. Bağlantılar zamanla değişebilir; çalışmayanı ✕ ile silip ＋ Ekle ile yenisini ekleyin.
+const DEFAULTS={
+  tv:[
+    {n:"TRT 1",u:"https://tv-trt1.medya.trt.com.tr/master.m3u8"},
+    {n:"NOW",u:"https://uycyyuuzyh.turknet.ercdn.net/nphindgytw/nowtv/nowtv_720p.m3u8"},
+    {n:"TV4",u:"https://turkmedya-live.ercdn.net/tv4/tv4.m3u8"},
+    {n:"TRT Haber",u:"https://tv-trthaber.medya.trt.com.tr/master.m3u8"},
+    {n:"A Haber",u:"https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/ahaber/ahaber.m3u8"},
+    {n:"Halk TV",u:"https://halktv-live.daioncdn.net/halktv/halktv.m3u8"},
+    {n:"Habertürk",u:"https://tv.ensonhaber.com/haberturk/haberturk.m3u8"},
+    {n:"Haber Global",u:"https://tv.ensonhaber.com/haberglobal/haberglobal.m3u8"},
+    {n:"Tele 1",u:"https://tele1-live.ercdn.net/tele1/tele1.m3u8"},
+    {n:"TV 24",u:"https://turkmedya-live.ercdn.net/tv24/tv24.m3u8"},
+    {n:"360 TV",u:"https://turkmedya-live.ercdn.net/tv360/tv360.m3u8"},
+    {n:"TGRT Haber",u:"https://canli.tgrthaber.com/tgrt.m3u8"},
+    {n:"Ekoturk",u:"https://cdn.ekoturk.net/hls/master.m3u8"},
+    {n:"Flash Haber",u:"https://b01c02nl.mediatriple.net/videoonlylive/mtyycglqauzjhlive/broadcast_67c053c48829f.smil/playlist.m3u8"},
+    {n:"A Spor",u:"https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/aspor/aspor.m3u8"},
+    {n:"TJK TV",u:"https://tjktv-live.tjk.org/tjktv.m3u8"},
+    {n:"TRT Çocuk",u:"https://tv-trtcocuk.medya.trt.com.tr/master.m3u8"},
+    {n:"Minika Çocuk",u:"https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/minikago_cocuk/minikago_cocuk.m3u8"},
+    {n:"Minika Go",u:"https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/minikago/minikago.m3u8"},
+    {n:"TRT Diyanet Çocuk",u:"https://tv-trtdiyanetcocuk.medya.trt.com.tr/master.m3u8"},
+    {n:"TRT 3",u:"https://tv-trt3.live.trt.com.tr/master.m3u8"},
+    {n:"TRT Türk",u:"https://tv-trtturk.medya.trt.com.tr/master.m3u8"},
+    {n:"TRT Müzik",u:"https://tv-trtmuzik.medya.trt.com.tr/master.m3u8"},
+    {n:"TRT World",u:"https://tv-trtworld.medya.trt.com.tr/master.m3u8"},
+    {n:"A2 TV",u:"https://rnttwmjcin.turknet.ercdn.net/lcpmvefbyo/a2tv/a2tv.m3u8"},
+    {n:"Kral Pop",u:"https://dogus-live.daioncdn.net/kralpoptv/playlist.m3u8"},
+    {n:"Power TV",u:"https://livetv.powerapp.com.tr/powerTV/powerhd.smil/playlist.m3u8"},
+    {n:"Power Türk",u:"https://livetv.powerapp.com.tr/powerturkTV/powerturkhd.smil/playlist.m3u8"},
+    {n:"Diyanet TV",u:"https://eustr73.mediatriple.net/videoonlylive/mtikoimxnztxlive/broadcast_5e3bf95a47e07.smil/playlist.m3u8"},
+    {n:"TBMM TV",u:"https://meclistv-live.ercdn.net/meclistv/meclistv.m3u8"}
+  ],
+  yt:[
+    {n:"Örnek: lofi radyo",u:"https://www.youtube.com/watch?v=jfKfPfyJRdk"}
+  ]
+};
+let tab="tv",data;
+const $=id=>document.getElementById(id);
+let user={tv:[],yt:[],hide:[]};
+function load(){try{const x=JSON.parse(localStorage.getItem("ytv3"));if(x)user=x}catch(e){}
+  data={tv:DEFAULTS.tv.filter(c=>!user.hide.includes(c.u)).concat(user.tv),yt:DEFAULTS.yt.filter(c=>!user.hide.includes(c.u)).concat(user.yt)}}
+function persist(){try{localStorage.setItem("ytv3",JSON.stringify(user))}catch(e){}}
+function ytId(u){const m=u.match(/(?:v=|youtu\.be\/|embed\/|live\/|shorts\/)([\w-]{11})/);return m&&m[1]}
+function ytList(u){const m=u.match(/[?&]list=([\w-]+)/);return m&&m[1]}
+function render(){
+  $("t-tv").classList.toggle("on",tab==="tv");$("t-yt").classList.toggle("on",tab==="yt");
+  const g=$("grid");g.innerHTML="";
+  const q=$("q").value.toLowerCase();data[tab].forEach((c,i)=>{if(q&&!c.n.toLowerCase().includes(q))return;
+    const d=document.createElement("div");d.className="card";
+    d.innerHTML=`<b></b><small>${tab==="tv"?"Canlı":"YouTube"}</small><button class="x">✕</button>`;
+    d.querySelector("b").textContent=c.n;
+    d.onclick=()=>play(c.u);
+    d.querySelector(".x").onclick=e=>{e.stopPropagation();const k=user[tab].findIndex(z=>z.u===c.u);if(k>=0)user[tab].splice(k,1);else user.hide.push(c.u);persist();load();render()};
+    g.appendChild(d);
+  });
+}
+let hls;
+function play(u){
+  const host=$("host");host.innerHTML="";$("msg").textContent="";$("player").classList.add("show");
+  const id=ytId(u),list=ytList(u);
+  if(id||list){
+    const f=document.createElement("iframe");
+    f.allow="autoplay; fullscreen; encrypted-media";f.allowFullscreen=true;
+    f.src=list&&!id?`https://www.youtube.com/embed/videoseries?list=${list}&autoplay=1`:`https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+    host.appendChild(f);return;
+  }
+  const v=document.createElement("video");v.controls=true;v.autoplay=true;v.playsInline=true;host.appendChild(v);
+  if(/\.m3u8/.test(u)&&window.Hls&&Hls.isSupported()){
+    hls=new Hls();hls.loadSource(u);hls.attachMedia(v);
+    hls.on(Hls.Events.ERROR,(e,d)=>{if(d.fatal)$("msg").textContent="Yayın açılamadı. Bağlantı değişmiş olabilir."});
+  }else{v.src=u;v.onerror=()=>$("msg").textContent="Video açılamadı."}
+  v.play().catch(()=>{});
+}
+function stop(){if(hls){hls.destroy();hls=null}$("host").innerHTML="";$("player").classList.remove("show")}
+$("back").onclick=stop;
+$("t-tv").onclick=()=>{tab="tv";render()};
+$("t-yt").onclick=()=>{tab="yt";render()};
+$("q").oninput=render;
+$("t-add").onclick=()=>$("add").classList.toggle("show");
+$("save").onclick=()=>{
+  const n=$("n").value.trim(),u=$("u").value.trim();if(!n||!u)return;
+  user[(ytId(u)||ytList(u))?"yt":"tv"].push({n,u});
+  tab=(ytId(u)||ytList(u))?"yt":"tv";
+  $("n").value=$("u").value="";persist();load();render();
+};
+load();render();
+</script>
+</body>
+</html>
