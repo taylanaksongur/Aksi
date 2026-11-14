@@ -4,7 +4,7 @@
 // oturum belirteçleri yalnızca SHA-256 özetiyle saklanır. Düz metin şifre/belirteç günlüğe yazılmaz.
 import { DurableObject } from 'cloudflare:workers';
 
-const KAYNAK = 'https://taylanaksongur.github.io';
+const KAYNAKLAR = ['https://taylanaksongur.github.io', 'https://aksi.systems']; // izinli sayfa kaynakları
 const ALANLAR = ['ev', 'tekne'];          // yetki verilebilen alanlar
 const ORTAK_ALANLAR = ['ev', 'tekne', 'aksi']; // ortak ayar alanları (aksi: giriş yapan herkes okur)
 const ROLLER = ['yonetici', 'aile'];
@@ -26,8 +26,8 @@ const GOVDE_SINIR = 600 * 1024;
 // ---------- giriş noktası: CORS + Durable Object'e yönlendirme ----------
 function corsBasliklari(origin) {
   const h = { 'Vary': 'Origin' };
-  if (origin === KAYNAK) Object.assign(h, {
-    'Access-Control-Allow-Origin': KAYNAK,
+  if (KAYNAKLAR.includes(origin)) Object.assign(h, {
+    'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Authorization, Content-Type',
     'Access-Control-Max-Age': '86400',
@@ -39,7 +39,7 @@ export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin');
     const cors = corsBasliklari(origin);
-    if (origin && origin !== KAYNAK) return yanit(403, { hata: 'Bu kaynağa izin yok' }, cors);
+    if (origin && !KAYNAKLAR.includes(origin)) return yanit(403, { hata: 'Bu kaynağa izin yok' }, cors);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     let r;
     try {
