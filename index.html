@@ -738,7 +738,7 @@ async function evYenile(){
     await evAdlariniAl();
     const j = await kopru("/cihazlar");
     const eski = Object.fromEntries(state.home.map(l => [l.id, l]));
-    state.home = (j.cihazlar || []).filter(c => c.acik !== null && !ui.pending[c.id]).map(c => {
+    state.home = (j.cihazlar || []).filter(c => c.acik !== null && c.tur !== 'thermostat' && !ui.pending[c.id])   /* termostat ışık değil, özette görünmesin */.map(c => {
       const m = evAdlari[c.id], parca = c.ad.split(" · ");
       return Object.assign(eski[c.id] || {}, { id: c.id, name: m ? m.ad : parca[parca.length - 1], where: m ? odaAdi(m.oda) : parca[0], on: !!c.acik });
     }).concat(state.home.filter(l => ui.pending[l.id]));
