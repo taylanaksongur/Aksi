@@ -3,7 +3,8 @@ const KAPALI = false;
 const SURUM = "aksi-v1";
 const HTML_ZAMAN_ASIMI = 3000;
 const YAZI_TIPI = ["fonts.googleapis.com", "fonts.gstatic.com"];
-const SWR_DOSYA = /\/(hesap\.js|esitle\.js|manifest\.webmanifest|icon-192\.png|icon-512\.png|apple-touch-icon\.png)$/;
+const OTURUM_DOSYA = /\/(hesap\.js|esitle\.js)$/;   // oturum/yetki kodu: önce ağ, yalnız ağ yoksa önbellek (eski kod çevrimiçinde çalışmaz)
+const SWR_DOSYA = /\/(manifest\.webmanifest|icon-192\.png|icon-512\.png|apple-touch-icon\.png)$/;
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil((async () => {
@@ -23,6 +24,11 @@ async function agOnce(req) {
   ag.catch(() => {});
   return Promise.race([ag, new Promise(res => setTimeout(() => res(eski), HTML_ZAMAN_ASIMI))]).catch(() => eski);
 }
+async function yalnizAgYoksa(req) {
+  const onb = await caches.open(SURUM), k = anahtar(req.url);
+  try { const r = await fetch(req); if (r.ok) onb.put(k, r.clone()); return r; }
+  catch (h) { const eski = await onb.match(k); if (eski) return eski; throw h; }
+}
 async function eskiyiVer(req, e) {
   const onb = await caches.open(SURUM), k = anahtar(req.url);
   const eski = await onb.match(k);
@@ -38,5 +44,6 @@ self.addEventListener("fetch", e => {
   if (YAZI_TIPI.includes(u.hostname)) return e.respondWith(eskiyiVer(req, e));
   if (u.origin !== location.origin) return;
   if (req.mode === "navigate") return e.respondWith(agOnce(req));
+  if (OTURUM_DOSYA.test(u.pathname)) return e.respondWith(yalnizAgYoksa(req));
   if (SWR_DOSYA.test(u.pathname)) e.respondWith(eskiyiVer(req, e));
 });
