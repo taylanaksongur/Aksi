@@ -915,9 +915,14 @@ tUndo.addEventListener("click", async () => {
 });
 
 function renderAll(){ render("home"); render("boat"); paintWindows(); renderStatus(); renderStrip(); if (typeof sabitCiz === "function") sabitCiz(); }
-/* canlı veri: açılışta, 15 sn'de bir ve sekme öne gelince */
-setInterval(() => { if (!document.hidden) evYenile(); }, 15000);
-document.addEventListener("visibilitychange", () => { if (!document.hidden) evYenile(); });
+/* canlı veri: açılışta, dokunuş yokken seyrekleşen aralıkla, sekme öne gelince, başka sekme yazınca */
+var sonDokunus = Date.now();
+["pointerdown","keydown","touchstart"].forEach(o => addEventListener(o, () => { sonDokunus = Date.now(); }, {passive:true, capture:true}));
+function yoklamaAraligi(){ return (typeof sabitAcik !== "undefined" && sabitAcik) ? 30000 : (Date.now() - sonDokunus > 120000 ? 45000 : 15000); }
+var sonYoklama = 0;
+setInterval(() => { if (!document.hidden && Date.now() - sonYoklama >= yoklamaAraligi() - 500){ sonYoklama = Date.now(); evYenile(); } }, 5000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden){ sonYoklama = Date.now(); evYenile(); } });
+addEventListener("storage", () => { sonYoklama = Date.now(); evYenile(); });
 
 const d = new Date();
 document.getElementById("clock").innerHTML =
