@@ -33,7 +33,7 @@ Onaylanan işler ve kararlar `yol-haritasi.md` dosyasında.
 
 ## Yenilik akışı
 
-1. Taylan istediğinde (ya da büyük bir özellik bittiğinde) **yenilik-arastirmaci** benzer sistemleri araştırıp numaralı fikir raporu hazırlar.
+1. **yenilik-arastirmaci** kendiliğinden çalıştırılmaz; yalnızca Taylan açıkça istediğinde çalışır. İstenince benzer sistemleri araştırıp numaralı fikir raporu hazırlar.
 2. Koordinatör raporu Taylan'a sunar; hiçbir fikir onaysız uygulanmaz.
 3. Onaylanan fikirler ilgili uzmana verilir ve güncelleme akışı 1. adımdan işler.
 4. Reddedilen fikirler `yenilik-gecmisi.md` dosyasına not edilir.
