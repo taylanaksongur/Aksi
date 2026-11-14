@@ -1501,6 +1501,9 @@ document.addEventListener("keydown", e => { if (sabitAcik && (e.key === "Escape"
 document.addEventListener("visibilitychange", () => { if (!document.hidden && sabitAcik){ kilit = null; kilitIste(); sabitCiz(); } });
 
 baslat();
+if ("serviceWorker" in navigator) addEventListener("load", () => {
+  navigator.serviceWorker.register("sw.js").then(r => document.addEventListener("visibilitychange", () => { if (!document.hidden) r.update().catch(() => {}); })).catch(() => {});
+});
 </script>
 
 </body>
