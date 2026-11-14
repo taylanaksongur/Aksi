@@ -8,6 +8,10 @@ const KAYNAK = 'https://taylanaksongur.github.io';
 const ALANLAR = ['ev', 'tekne'];          // yetki verilebilen alanlar
 const ORTAK_ALANLAR = ['ev', 'tekne', 'aksi']; // ortak ayar alanları (aksi: giriş yapan herkes okur)
 const ROLLER = ['yonetici', 'aile'];
+// Köprü adına göre gereken alan (herhangi biri yeter). Listede olmayan köprüye yalnızca yönetici ulaşır.
+const KOPRU_ALAN = { ihost: ['ev'], kamera: ['ev', 'tekne'] };
+// Kamera köprüsünde kameranın bağlı olduğu alan (kamera-koprusu/worker.js'deki KAMERALAR ile aynı tutulmalı).
+const KAMERA_ALAN = { on: 'tekne', arka: 'tekne', yemek: 'ev', oturma: 'ev', bahce: 'ev', cocuk: 'ev' };
 const TUR = 100000;                        // Workers'ta PBKDF2 üst sınırı 100 000
 const OTURUM_MS = 180 * 86400000;          // 180 gün, her kullanımda kayar
 const UZATMA_ARALIGI_MS = 86400000;        // kayan süre en çok günde bir yazılır (yazma kotası için)
@@ -147,8 +151,21 @@ export class HesapDeposu extends DurableObject {
     return yanit(200, { tamam: true });
   }
 
+  // Yetki sunucuda her istekte denetlenir. Yönetici her köprüye girer; aile yalnızca alanı olan köprüye (kamerada kameranın alanına).
+  kopruYetkisi(ben, ad, alt, u) {
+    if (ben.rol === 'yonetici') return;
+    const gerek = KOPRU_ALAN[ad];
+    const al = this.alanlari(ben);
+    if (!gerek || !gerek.some(a => al.includes(a))) throw new Hata(403, ad === 'ihost' ? 'Ev alanına erişimin yok' : 'Bu köprüye erişimin yok');
+    if (ad === 'kamera' && alt === '/live') {
+      const alan = KAMERA_ALAN[u.searchParams.get('cam')];
+      if (!alan || !al.includes(alan)) throw new Hata(403, 'Bu kameranın alanına erişimin yok');
+    }
+  }
+
   async kopruIlet(request, ad, alt, ben, m) {
-    if (ad === 'ihost' && !this.alanlari(ben).includes('ev')) throw new Hata(403, 'Ev alanına erişimin yok');
+    const u = new URL(request.url);
+    this.kopruYetkisi(ben, ad, alt, u);
     if (alt === '/' && m === 'DELETE') {   // yönetici köprü kaydını sıfırlar (yeni anahtar için)
       if (ben.rol !== 'yonetici') throw new Hata(403, 'Yalnız yönetici');
       this.sql.exec('DELETE FROM kopruler WHERE ad = ?', ad);
@@ -159,7 +176,7 @@ export class HesapDeposu extends DurableObject {
     if (alt === '/adres' && m === 'GET') return yanit(200, { url: k.url, guncelleme: k.guncelleme });
     let r;
     try {
-      r = await fetch(k.url + alt, {
+      r = await fetch(k.url + alt + u.search, {
         method: m,
         headers: { 'Authorization': request.headers.get('Authorization') || '', 'Content-Type': 'application/json' },
         body: m === 'GET' || m === 'HEAD' ? undefined : await request.text(),
