@@ -336,6 +336,41 @@ body:not(.oturumsuz) .auth{display:none}
 .uy-ars .uy-sat{opacity:.55;background:transparent;border:1px solid var(--line);border-left-width:4px;min-height:44px}
 .uy-ars .uy-sat.sv-uyari{border-left-color:var(--warm)}.uy-ars .uy-sat.sv-tehlike{border-left-color:var(--danger)}.uy-ars .uy-sat:not(.sv-uyari):not(.sv-tehlike){border-left-color:var(--cool)}
 .uy-ars .uy-sat .et{flex:none;padding:0 10px;font-size:12px;color:var(--muted)}
+.sb-btn{order:3;flex:none;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-weight:600;font-size:13px}
+.sb-btn:hover{border-color:var(--accent)}
+.sb-btn .wi{width:16px;height:16px}
+
+/* Sabit ekran modu (Y3) */
+.sabit{position:fixed;inset:0;z-index:30;display:none;flex-direction:column;justify-content:center;align-items:center;gap:20px;text-align:center;cursor:pointer;
+  padding:calc(24px + env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px));
+  background:radial-gradient(1200px 700px at 50% 20%,#1a2256 0%,var(--bg) 60%),var(--bg);overflow:hidden;-webkit-tap-highlight-color:transparent}
+.sabit.acik{display:flex}
+.sabit:focus{outline:none}
+body.sabit-acik{overflow:hidden}
+.sb-saat{font-family:var(--f-mono);font-weight:500;font-size:clamp(72px,24vw,150px);line-height:1;letter-spacing:-.02em}
+.sb-tarih{font-family:var(--f-display);font-size:clamp(16px,4.5vw,28px);color:var(--muted);margin-top:6px}
+.sb-ozet{display:grid;gap:10px;width:100%;max-width:520px}
+.sb-kart{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px 16px;text-align:left;min-width:0}
+.sb-kart h3{font-family:var(--f-display);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+.sb-kart .b{font-family:var(--f-mono);font-size:clamp(22px,6vw,34px);font-weight:500}
+.sb-kart .b.lit{color:var(--warm)}.sb-kart .b.bad{color:var(--danger)}.sb-kart .b.ok{color:var(--ok)}
+.sb-kart p{margin:2px 0 0;color:var(--muted);font-size:clamp(13px,3.4vw,16px);overflow-wrap:anywhere}
+.sb-kart .u{margin:6px 0 0;color:var(--fg);font-size:clamp(14px,3.6vw,18px)}
+.sb-ipucu{color:var(--muted);font-size:13px;opacity:.8}
+@media (min-width:700px) and (orientation:landscape){
+  .sabit.acik{display:grid;grid-template-columns:1.1fr 1fr;grid-template-rows:1fr auto;align-items:center;justify-items:center;column-gap:40px;row-gap:8px}
+  .sb-saat{font-size:clamp(110px,17vw,230px)}.sb-tarih{font-size:clamp(20px,2.8vw,34px)}
+  .sb-ozet{max-width:560px}.sb-kart .b{font-size:clamp(28px,3.6vw,46px)}.sb-kart p{font-size:clamp(15px,1.8vw,20px)}.sb-kart .u{font-size:clamp(16px,2vw,22px)}
+  .sb-ipucu{grid-column:1/-1}
+}
+@media (min-width:700px) and (orientation:portrait){ .sb-saat{font-size:clamp(120px,22vw,220px)} .sb-ozet{max-width:640px} .sb-kart .b{font-size:40px} .sb-kart p{font-size:18px} .sb-kart .u{font-size:20px} }
+@media (max-height:420px){ .sabit{gap:8px} .sb-saat{font-size:64px} }
+.sabit.koyu{background:#000}
+.sabit.koyu .sb-kart{background:#0b0d1c}
+.sabit.gece{background:#000;filter:brightness(.55)}
+.sabit.gece .sb-kart{background:#07080f;border-color:#1a2048}
+.sabit.gece .sb-saat{color:var(--warm)}
+@media (min-width:700px) and (min-height:900px) and (orientation:portrait){ #ana{grid-template-rows:1fr auto} }
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
 }
@@ -427,6 +462,8 @@ body:not(.oturumsuz) .auth{display:none}
     </div>
     <ul class="strip" id="strip" aria-label="Özet"></ul>
     <span class="demo ver" title="Sürüm" style="background:transparent;border:1px solid var(--line,#2c3670);color:var(--muted,#8c94c9);font-family:'IBM Plex Mono',monospace">v1.0</span>
+    <button type="button" class="sb-btn" id="sb-btn" aria-label="Sabit ekran modunu aç">
+      <svg class="wi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Sabit ekran</button>
     <div class="hk" id="hk">
       <button type="button" class="hk-btn" id="hk-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="hk-menu">
         <span class="av" id="hk-av" aria-hidden="true"></span><span class="hk-ad" id="hk-ad"></span>
@@ -639,6 +676,12 @@ body:not(.oturumsuz) .auth{display:none}
       </aside>
     </div>
   </section>
+</div>
+
+<div class="sabit" id="sabit" role="dialog" aria-modal="true" aria-label="Sabit ekran. Çıkmak için dokun." tabindex="-1">
+  <div class="sb-sol"><div class="sb-saat" id="sb-saat">--:--</div><div class="sb-tarih" id="sb-tarih"></div></div>
+  <div class="sb-ozet" id="sb-ozet"></div>
+  <div class="sb-ipucu">Çıkmak için ekrana dokun</div>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite">
@@ -871,7 +914,7 @@ tUndo.addEventListener("click", async () => {
   hideToast(); render(ref.place); paintWindows(); renderStrip();
 });
 
-function renderAll(){ render("home"); render("boat"); paintWindows(); renderStatus(); renderStrip(); }
+function renderAll(){ render("home"); render("boat"); paintWindows(); renderStatus(); renderStrip(); if (typeof sabitCiz === "function") sabitCiz(); }
 /* canlı veri: açılışta, 15 sn'de bir ve sekme öne gelince */
 setInterval(() => { if (!document.hidden) evYenile(); }, 15000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) evYenile(); });
@@ -1383,6 +1426,7 @@ function uyariCiz(){
   $("uy-ars").hidden = !arsiv.length;
   $("uy-ars-ad").textContent = `Arşiv (${arsiv.length})`;
   $("uy-ars-liste").innerHTML = arsiv.slice(0, 50).map(u => uyariSatiri(u, true)).join("");
+  sabitCiz();
 }
 $("uy-liste").addEventListener("click", e => {
   const b = e.target.closest(".uy-gor"); if (!b) return;
@@ -1394,6 +1438,67 @@ window.addEventListener("storage", e => { if (e.key === null || e.key === UYARI_
 window.addEventListener("pageshow", uyariCiz);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) uyariCiz(); });
 setInterval(() => { if (!document.hidden) uyariCiz(); }, 30000);
+
+/* ================= Sabit ekran modu (Y3) ================= */
+var sabitAcik = false, kilit = null, sabitZaman = 0;
+async function kilitIste(){
+  if (!sabitAcik || document.hidden || kilit || !("wakeLock" in navigator)) return;
+  try {
+    const k = await navigator.wakeLock.request("screen");
+    kilit = k;
+    k.addEventListener("release", () => { if (kilit === k) kilit = null; });
+    if (!sabitAcik) kilitBirak();
+  } catch { kilit = null; }   // desteklenmiyor ya da reddedildi: sessizce geç
+}
+function kilitBirak(){ const k = kilit; kilit = null; if (k) k.release().catch(() => {}); }
+function sabitTema(){
+  const el = $("sabit"), saat = new Date().getHours();
+  const gece = saat >= 22 || saat < 7;
+  el.classList.toggle("gece", gece);
+  el.classList.toggle("koyu", !gece && matchMedia("(prefers-color-scheme: dark)").matches);
+}
+function sabitCiz(){
+  if (!sabitAcik) return;
+  const d = new Date();
+  $("sb-saat").textContent = d.toLocaleTimeString("tr-TR", {hour:"2-digit", minute:"2-digit"});
+  $("sb-tarih").textContent = d.toLocaleDateString("tr-TR", {weekday:"long", day:"numeric", month:"long"});
+  sabitTema();
+  let h = "";
+  if (gorunur.home){
+    const ac = state.home.filter(l => l.on), hub = state.homeStatus.hub, ilk = state.homeStatus.ilk;
+    h += `<div class="sb-kart"><h3>Ev</h3><div class="b ${!hub && !ilk ? "bad" : ac.length ? "lit" : "ok"}">${!hub ? (ilk ? "Bağlanıyor" : "Ulaşılamıyor") : ac.length ? ac.length + " ışık açık" : "Işıklar kapalı"}</div>${hub && ac.length ? `<p>${ac.slice(0, 6).map(l => esc(l.name)).join(", ")}${ac.length > 6 ? " +" + (ac.length - 6) : ""}</p>` : ""}</div>`;
+  }
+  if (gorunur.boat){
+    const ac = state.boat.filter(l => l.on);
+    h += `<div class="sb-kart"><h3>Tekne</h3><div class="b ${ac.length ? "lit" : ""}">${ac.length ? ac.length + " ışık açık" : "Işıklar kapalı"}</div><p>${typeof state.boatStatus.bat === "number" ? "Akü %" + fmt(state.boatStatus.bat) : "Canlı veri yok"}</p></div>`;
+  }
+  const u = uyariAktif();
+  h += `<div class="sb-kart"><h3>Uyarılar</h3><div class="b ${u.length ? "bad" : "ok"}">${u.length ? u.length + " görülmemiş" : "Uyarı yok"}</div>${u.slice(0, 2).map(x => `<p class="u">${x.kaynak === "ev" ? "Ev" : "Tekne"} · ${esc(x.mesaj)} (${uyariSaat(x.t)})</p>`).join("")}</div>`;
+  $("sb-ozet").innerHTML = h;
+}
+function sabitAc(){
+  sabitAcik = true;
+  const el = $("sabit");
+  el.classList.add("acik");
+  document.body.classList.add("sabit-acik");
+  $("ana").inert = true; document.querySelector(".wrap > header").inert = true;
+  sabitCiz(); el.focus({preventScroll:true});
+  sabitZaman = setInterval(sabitCiz, 1000);
+  kilitIste();
+}
+function sabitKapat(){
+  if (!sabitAcik) return;
+  sabitAcik = false; clearInterval(sabitZaman);
+  kilitBirak();
+  $("sabit").classList.remove("acik");
+  document.body.classList.remove("sabit-acik");
+  $("ana").inert = false; document.querySelector(".wrap > header").inert = false;
+  $("sb-btn").focus({preventScroll:true});
+}
+$("sb-btn").addEventListener("click", sabitAc);
+$("sabit").addEventListener("click", sabitKapat);
+document.addEventListener("keydown", e => { if (sabitAcik && (e.key === "Escape" || e.key === "Enter" || e.key === " ")){ e.preventDefault(); sabitKapat(); } });
+document.addEventListener("visibilitychange", () => { if (!document.hidden && sabitAcik){ kilit = null; kilitIste(); sabitCiz(); } });
 
 baslat();
 </script>
