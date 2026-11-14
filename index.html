@@ -53,7 +53,7 @@ h1{font-family:var(--f-display);font-size:20px;font-weight:700;margin:0;line-hei
 .wi{width:13px;height:13px;flex:none;vertical-align:-2px}
 
 /* Kartlar */
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,370px),1fr));gap:10px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px 14px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
 .open{display:flex;align-items:center;gap:12px;min-height:60px;padding:4px 8px 4px 4px;color:inherit;text-decoration:none;border-radius:14px;transition:background .2s}
 .open:hover{background:var(--panel-2)}
@@ -157,6 +157,7 @@ body:not(.oturumsuz) .auth{display:none}
 .a-msj:empty{display:none}
 /* Aile rolünde tek kart: kutular genişliği doldurur; ışık butonları auto-fill ile sütunda kalır,
    tek ışık açıkken bile kart boyunca uzamaz (tablette ≈170-260 px). Telefonda 130 px: iki ışık yan yana. */
+.grid.tek>.card{grid-column:1/-1}
 .grid.tek .status{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
 .grid.tek .btns{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
 @media (max-width:699px){ .grid.tek .btns{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))} }
@@ -310,6 +311,31 @@ body:not(.oturumsuz) .auth{display:none}
   .lbtn .bt small{font-size:12px}
   .lights h3{font-size:12px}
 }
+
+/* Ortak uyarı merkezi (Y2) */
+.uy{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px 14px 12px;min-width:0}
+.uy-bas{display:flex;align-items:center;gap:8px;margin:0 0 6px}
+.uy-bas h3{font-family:var(--f-display);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0}
+.uy-rozet{background:var(--danger);color:#2a0710;border-radius:999px;font-size:11px;min-width:22px;text-align:center;padding:1px 8px;font-family:var(--f-mono);font-weight:600}
+.uy-rozet.zero{background:var(--panel-2);color:var(--muted)}
+.uy-liste{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.uy-sat{display:flex;align-items:center;gap:10px;min-height:52px;padding:6px 6px 6px 12px;border-radius:12px;background:var(--panel-2);border-left:4px solid var(--cool);min-width:0}
+.uy-sat.sv-uyari{border-left-color:var(--warm)}.uy-sat.sv-tehlike{border-left-color:var(--danger)}
+.uy-sat .gv{flex:1;min-width:0}
+.uy-sat .ms{display:block;font-weight:500;overflow-wrap:anywhere}
+.uy-sat .kt{display:block;font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.uy-sat .kt b{font-family:var(--f-body);font-weight:600;color:var(--fg)}
+.uy-gor{flex:none;min-height:44px;min-width:44px;padding:0 14px;border-radius:10px;background:rgba(74,99,255,.22);font-weight:600}
+.uy-gor:hover{background:rgba(74,99,255,.4)}
+.uy-bos{margin:0;color:var(--muted);font-size:13px;padding:6px 2px}
+.uy-ars{margin-top:8px}
+.uy-ars>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12.5px;list-style:none}
+.uy-ars>summary::-webkit-details-marker{display:none}
+.uy-ars>summary::before{content:"›";display:inline-block;transition:transform .15s}
+.uy-ars[open]>summary::before{transform:rotate(90deg)}
+.uy-ars .uy-sat{opacity:.55;background:transparent;border:1px solid var(--line);border-left-width:4px;min-height:44px}
+.uy-ars .uy-sat.sv-uyari{border-left-color:var(--warm)}.uy-ars .uy-sat.sv-tehlike{border-left-color:var(--danger)}.uy-ars .uy-sat:not(.sv-uyari):not(.sv-tehlike){border-left-color:var(--cool)}
+.uy-ars .uy-sat .et{flex:none;padding:0 10px;font-size:12px;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
 }
@@ -480,6 +506,15 @@ body:not(.oturumsuz) .auth{display:none}
     </section>
 
     <p class="bos-alan" id="bos-alan" hidden>Hesabına henüz bir alan atanmadı. Ev ya da tekne panelini görmek için yöneticiden izin iste.</p>
+    <section class="uy" id="uy" aria-labelledby="h-uy">
+      <div class="uy-bas"><h3 id="h-uy">Uyarılar</h3><span class="uy-rozet zero" id="uy-rozet" role="status" aria-label="Görülmemiş uyarı yok">0</span></div>
+      <ul class="uy-liste" id="uy-liste"></ul>
+      <p class="uy-bos" id="uy-bos">Görülmemiş uyarı yok.</p>
+      <details class="uy-ars" id="uy-ars" hidden>
+        <summary id="uy-ars-ad">Arşiv</summary>
+        <ul class="uy-liste" id="uy-ars-liste"></ul>
+      </details>
+    </section>
   </main>
 
   <footer id="alt"></footer>
@@ -1033,7 +1068,7 @@ function uygulamayiAc(k, onbellekten){
   const kv = hesap.kisisel.onbellek().veri;
   sonPanel = kv && kv.sonPanel || null;
   esitlemeYaz(onbellekten ? "bekliyor" : undefined);
-  renderStrip(); renderMeta();
+  renderStrip(); renderMeta(); uyariCiz();
   ekran("uygulama");
 }
 function esitlemeYaz(d){
@@ -1308,6 +1343,57 @@ sdForm.addEventListener("submit", async e => {
     if (err.durum === 429 && err.bekle) bekle(btn, err.bekle, ETIKET);
   }
 });
+
+/* ================= Ortak uyarı merkezi (Y2) =================
+   Sözleşme: localStorage "aksi-uyarilar" = [{id, kaynak:'ev'|'tekne', mesaj, seviye:'bilgi'|'uyari'|'tehlike', t:epoch ms, bitti:boolean}]
+   Paneller (aynı origin) yazar; Aksi okur. "Gördüm" ayrı anahtarda: "aksi-uyari-gordu" = {id: t}. */
+const UYARI_ANAHTAR = "aksi-uyarilar", GORDU_ANAHTAR = "aksi-uyari-gordu";
+const SEVIYE = {bilgi:"Bilgi", uyari:"Uyarı", tehlike:"Tehlike"};
+function jsonOku(k, varsayilan){ try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? varsayilan : v; } catch { return varsayilan; } }
+function uyarilariOku(){
+  const d = jsonOku(UYARI_ANAHTAR, []);
+  if (!Array.isArray(d)) return [];
+  return d.filter(u => u && typeof u === "object" && u.id != null && (u.kaynak === "ev" || u.kaynak === "tekne") && typeof u.mesaj === "string" && Number.isFinite(+u.t))
+    .map(u => ({id: String(u.id), kaynak: u.kaynak, mesaj: u.mesaj, seviye: SEVIYE[u.seviye] ? u.seviye : "bilgi", t: +u.t, bitti: u.bitti === true}))
+    .filter(u => gorunur[u.kaynak === "ev" ? "home" : "boat"])
+    .sort((a, b) => b.t - a.t);
+}
+function gorduOku(){ const g = jsonOku(GORDU_ANAHTAR, {}); return g && typeof g === "object" && !Array.isArray(g) ? g : {}; }
+function uyariAktif(){ const g = gorduOku(); return uyarilariOku().filter(u => !u.bitti && !g[u.id]); }
+function uyariSaat(t){
+  const d = new Date(t), bugun = new Date();
+  const s = d.toLocaleTimeString("tr-TR", {hour:"2-digit", minute:"2-digit"});
+  return d.toDateString() === bugun.toDateString() ? s : d.toLocaleDateString("tr-TR", {day:"numeric", month:"short"}) + " " + s;
+}
+function uyariSatiri(u, arsiv){
+  const kim = u.kaynak === "ev" ? "Ev" : "Tekne";
+  const sag = arsiv ? `<span class="et">${u.bitti ? "Bitti" : "Görüldü"}</span>` : `<button type="button" class="uy-gor" data-id="${esc(u.id)}" aria-label="Gördüm: ${esc(u.mesaj)}">Gördüm</button>`;
+  return `<li class="uy-sat sv-${u.seviye}"><div class="gv"><span class="ms">${esc(u.mesaj)}</span><span class="kt"><b>${kim}</b> · ${SEVIYE[u.seviye]} · ${uyariSaat(u.t)}</span></div>${sag}</li>`;
+}
+function uyariCiz(){
+  const g = gorduOku(), hepsi = uyarilariOku();
+  const aktif = hepsi.filter(u => !u.bitti && !g[u.id]), arsiv = hepsi.filter(u => u.bitti || g[u.id]);
+  const r = $("uy-rozet");
+  r.textContent = aktif.length > 99 ? "99+" : aktif.length;
+  r.classList.toggle("zero", !aktif.length);
+  r.setAttribute("aria-label", aktif.length ? `${aktif.length} görülmemiş uyarı` : "Görülmemiş uyarı yok");
+  $("uy-liste").innerHTML = aktif.map(u => uyariSatiri(u, false)).join("");
+  $("uy-bos").hidden = aktif.length > 0;
+  $("uy-bos").textContent = hepsi.length ? "Görülmemiş uyarı yok." : "Şu an uyarı yok.";
+  $("uy-ars").hidden = !arsiv.length;
+  $("uy-ars-ad").textContent = `Arşiv (${arsiv.length})`;
+  $("uy-ars-liste").innerHTML = arsiv.slice(0, 50).map(u => uyariSatiri(u, true)).join("");
+}
+$("uy-liste").addEventListener("click", e => {
+  const b = e.target.closest(".uy-gor"); if (!b) return;
+  const g = gorduOku(); g[b.dataset.id] = Date.now();
+  try { localStorage.setItem(GORDU_ANAHTAR, JSON.stringify(g)); } catch {}
+  uyariCiz();
+});
+window.addEventListener("storage", e => { if (e.key === null || e.key === UYARI_ANAHTAR || e.key === GORDU_ANAHTAR) uyariCiz(); });
+window.addEventListener("pageshow", uyariCiz);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) uyariCiz(); });
+setInterval(() => { if (!document.hidden) uyariCiz(); }, 30000);
 
 baslat();
 </script>
