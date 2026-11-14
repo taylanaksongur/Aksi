@@ -19,6 +19,7 @@ Ana oturum (koordinatör) işi böler ve ilgili uzmana verir:
 - **ergonomi-degerlendirici** – her güncellemeden sonra sayfayı kullanım açısından değerlendirir, öneri raporu hazırlar
 - **yenilik-arastirmaci** – benzer ev ve tekne sistemlerini araştırır, eklenebilecek yenilikçi özellikleri raporlar
 - **altyapi-uzmani** – kullanıcı hesapları, yetkiler, ayar eşitleme ve Cloudflare Worker'lar
+- **performans-degerlendirici** – sistemin hızını, akıcılığını, komut gecikmesini ve bağlantı dayanıklılığını değerlendirir, öneri raporu hazırlar; kendiliğinden çalışmaz, yalnızca Taylan isteyince (ya da büyük bir yayın öncesi sorulunca) çalışır
 
 Onaylanan işler ve kararlar `yol-haritasi.md` dosyasında.
 
