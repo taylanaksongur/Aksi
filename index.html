@@ -367,8 +367,8 @@ body.sabit-acik{overflow:hidden}
 @media (max-height:420px){ .sabit{gap:8px} .sb-saat{font-size:64px} }
 .sabit.koyu{background:#000}
 .sabit.koyu .sb-kart{background:#0b0d1c}
-.sabit.gece{background:#000;filter:brightness(.55)}
-.sabit.gece .sb-kart{background:#07080f;border-color:#1a2048}
+.sabit.gece{background:#000;--fg:#828499;--muted:#4d5278;--warm:#8c6933;--ok:#1e744f;--danger:#8c3a47}
+.sabit.gece .sb-kart{background:#04050a;border-color:#11163a}
 .sabit.gece .sb-saat{color:var(--warm)}
 @media (min-width:700px) and (min-height:900px) and (orientation:portrait){ #ana{grid-template-rows:1fr auto} }
 @media (prefers-reduced-motion:reduce){
@@ -1445,7 +1445,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) uyar
 setInterval(() => { if (!document.hidden) uyariCiz(); }, 30000);
 
 /* ================= Sabit ekran modu (Y3) ================= */
-var sabitAcik = false, kilit = null, sabitZaman = 0;
+var sabitAcik = false, kilit = null, sabitZaman = 0, sabitImza = "";
 async function kilitIste(){
   if (!sabitAcik || document.hidden || kilit || !("wakeLock" in navigator)) return;
   try {
@@ -1468,6 +1468,9 @@ function sabitCiz(){
   $("sb-saat").textContent = d.toLocaleTimeString("tr-TR", {hour:"2-digit", minute:"2-digit"});
   $("sb-tarih").textContent = d.toLocaleDateString("tr-TR", {weekday:"long", day:"numeric", month:"long"});
   sabitTema();
+  const imza = JSON.stringify([gorunur, state.home.filter(l => l.on).map(l => l.name), state.homeStatus, state.boat.filter(l => l.on).map(l => l.name), state.boatStatus.bat, uyariAktif().map(x => x.id)]);
+  if (imza === sabitImza) return;
+  sabitImza = imza;
   let h = "";
   if (gorunur.home){
     const ac = state.home.filter(l => l.on), hub = state.homeStatus.hub, ilk = state.homeStatus.ilk;
@@ -1487,13 +1490,13 @@ function sabitAc(){
   el.classList.add("acik");
   document.body.classList.add("sabit-acik");
   $("ana").inert = true; document.querySelector(".wrap > header").inert = true;
-  sabitCiz(); el.focus({preventScroll:true});
-  sabitZaman = setInterval(sabitCiz, 1000);
+  sabitImza = ""; sabitCiz(); el.focus({preventScroll:true});
+  const dkTik = () => { sabitCiz(); sabitZaman = setTimeout(dkTik, 60500 - Date.now() % 60000); }; sabitZaman = setTimeout(dkTik, 60500 - Date.now() % 60000);
   kilitIste();
 }
 function sabitKapat(){
   if (!sabitAcik) return;
-  sabitAcik = false; clearInterval(sabitZaman);
+  sabitAcik = false; clearTimeout(sabitZaman);
   kilitBirak();
   $("sabit").classList.remove("acik");
   document.body.classList.remove("sabit-acik");
